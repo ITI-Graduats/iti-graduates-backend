@@ -41,8 +41,13 @@ app.use("/api/v1", mainRouter);
 
 app.use(errorHandler);
 
-dbConfig.connect().then(() => {
-  app.listen(process.env.PORT, () => {
-    console.log(`Server is listening on port ${process.env.PORT}`);
+dbConfig
+  .connect()
+  .then(() => {
+    app.listen(process.env.PORT, () => {
+      console.log(`Server is listening on port ${process.env.PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error(error);
   });
-});
