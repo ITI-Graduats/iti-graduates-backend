@@ -1,5 +1,4 @@
 const express = require("express");
-const { default: mongoose } = require("mongoose");
 const errorHandler = require("./middlewares/errorHandler");
 const requestLogger = require("./middlewares/requestLogger");
 const cookieParser = require("cookie-parser");
@@ -8,20 +7,21 @@ const cors = require("cors");
 require("express-async-errors");
 
 require("dotenv").config();
-const DB_URI = process.env.DB_URI;
-const PORT = process.env.PORT;
 
 const userRoutes = require("./routes/user.routes");
 
 const UserController = require("./controllers/user.controller");
 
 const UserRepository = require("./repositories/user.repository");
+const connectDB = require("./config/DB");
 
 const userRepository = new UserRepository();
 
 const userController = new UserController(userRepository);
 
 const app = express();
+
+connectDB(app);
 
 const mainRouter = express.Router();
 
@@ -43,13 +43,3 @@ app.use("/api/v1", mainRouter);
 
 app.use(errorHandler);
 
-mongoose
-  .connect(DB_URI)
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`server is listening on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.log("error connecting to mongodb: " + err.message);
-  });
