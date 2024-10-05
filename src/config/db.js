@@ -1,27 +1,15 @@
 const mongoose = require("mongoose");
-const { bold } = require("colors");
 
-const connectDB = async (app) => {
+const connect = async () => {
     try {
         const {
             connection: { host },
         } = await mongoose.connect(process.env.DB_URI);
 
-        console.log(bold(`Mongo Connected: ${host}`.cyan.underline));
-
-        app.listen(process.env.PORT, () => {
-            console.log(
-                bold(
-                    `Server is listening on port ` + `${process.env.PORT}`.green
-                )
-            );
-        });
+        console.log(`Mongo Connected: ${host}`);
     } catch (error) {
-        console.log(
-            bold(`Error connecting to mongodb: `.red.underline) +
-                `${error.message}`.red
-        );
+        throw Error(`Error connecting to mongodb: ${error.message}`);
     }
 };
 
-module.exports = connectDB;
+module.exports = { connect };
