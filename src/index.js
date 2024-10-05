@@ -1,12 +1,12 @@
 const express = require("express");
+require("express-async-errors");
+const cors = require("cors");
+const morgan = require("morgan");
+require("dotenv").config();
+
 const errorHandler = require("./middlewares/errorHandler");
 const requestLogger = require("./middlewares/requestLogger");
 const cookieParser = require("cookie-parser");
-const morgan = require("morgan");
-const cors = require("cors");
-require("express-async-errors");
-
-require("dotenv").config();
 
 const userRoutes = require("./routes/user.routes");
 
@@ -26,10 +26,10 @@ connectDB(app);
 const mainRouter = express.Router();
 
 app.use(
-  cors({
-    origin: "http://localhost:5173",
-    credentials: true,
-  })
+    cors({
+        origin: "http://localhost:5173",
+        credentials: true,
+    })
 );
 
 app.use(express.json());
@@ -42,4 +42,3 @@ mainRouter.use("/users", userRoutes(userController));
 app.use("/api/v1", mainRouter);
 
 app.use(errorHandler);
-
