@@ -21,24 +21,13 @@ const userController = new UserController(userRepository);
 
 const app = express();
 
-(async () => {
-    try {
-        await dbConfig.connect();
-        app.listen(process.env.PORT, () => {
-            console.log(`Server is listening on port ${process.env.PORT}`);
-        });
-    } catch (error) {
-        console.log(error.message);
-    }
-})();
-
 const mainRouter = express.Router();
 
 app.use(
-    cors({
-        origin: "http://localhost:5173",
-        credentials: true,
-    })
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
 );
 
 app.use(express.json());
@@ -51,3 +40,9 @@ mainRouter.use("/users", userRoutes(userController));
 app.use("/api/v1", mainRouter);
 
 app.use(errorHandler);
+
+dbConfig.connect().then(() => {
+  app.listen(process.env.PORT, () => {
+    console.log(`Server is listening on port ${process.env.PORT}`);
+  });
+});
