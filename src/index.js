@@ -1,15 +1,13 @@
 const express = require("express");
-const { default: mongoose } = require("mongoose");
+require("express-async-errors");
+const cors = require("cors");
+const morgan = require("morgan");
+require("dotenv").config();
+
+const dbConfig = require("./config/DB");
 const errorHandler = require("./middlewares/errorHandler");
 const requestLogger = require("./middlewares/requestLogger");
 const cookieParser = require("cookie-parser");
-const morgan = require("morgan");
-const cors = require("cors");
-require("express-async-errors");
-
-require("dotenv").config();
-const DB_URI = process.env.DB_URI;
-const PORT = process.env.PORT;
 
 const userRoutes = require("./routes/user.routes");
 
@@ -23,13 +21,24 @@ const userController = new UserController(userRepository);
 
 const app = express();
 
+(async () => {
+    try {
+        await dbConfig.connect();
+        app.listen(process.env.PORT, () => {
+            console.log(`Server is listening on port ${process.env.PORT}`);
+        });
+    } catch (error) {
+        console.log(error.message);
+    }
+})();
+
 const mainRouter = express.Router();
 
 app.use(
-  cors({
-    origin: "http://localhost:5173",
-    credentials: true,
-  })
+    cors({
+        origin: "http://localhost:5173",
+        credentials: true,
+    })
 );
 
 app.use(express.json());
@@ -42,14 +51,3 @@ mainRouter.use("/users", userRoutes(userController));
 app.use("/api/v1", mainRouter);
 
 app.use(errorHandler);
-
-mongoose
-  .connect(DB_URI)
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`server is listening on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.log("error connecting to mongodb: " + err.message);
-  });
