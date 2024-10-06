@@ -1,5 +1,4 @@
 const { isValidObjectId } = require("mongoose");
-const { findByIdAndUpdate } = require("../models/admin.model");
 const CustomError = require("../utils/CustomError");
 const {
     createAdminValidationSchema,
