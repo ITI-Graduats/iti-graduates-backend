@@ -4,7 +4,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 require("dotenv").config();
 
-const dbConfig = require("./config/DB");
+const dbConfig = require("./config/db");
 const errorHandler = require("./middlewares/errorHandler");
 const requestLogger = require("./middlewares/requestLogger");
 const cookieParser = require("cookie-parser");
@@ -34,10 +34,10 @@ const app = express();
 const mainRouter = express.Router();
 
 app.use(
-    cors({
-        origin: "*",
-        credentials: true,
-    })
+  cors({
+    origin: "*",
+    credentials: true,
+  })
 );
 
 app.use(express.json());
@@ -48,10 +48,10 @@ app.use(morgan("short"));
 mainRouter.use("/users", userRoutes(userController));
 mainRouter.use("/auth", authRoutes(authController));
 mainRouter.use(
-    "/admins",
-    auth,
-    checkRole(["super admin"]),
-    adminRoutes(adminController)
+  "/admins",
+  auth,
+  checkRole(["super admin"]),
+  adminRoutes(adminController)
 );
 
 app.use("/api/v1", mainRouter);
@@ -59,12 +59,12 @@ app.use("/api/v1", mainRouter);
 app.use(errorHandler);
 
 dbConfig
-    .connect()
-    .then(() => {
-        app.listen(process.env.PORT, () => {
-            console.log(`Server is listening on port ${process.env.PORT}`);
-        });
-    })
-    .catch((error) => {
-        console.error(error);
+  .connect()
+  .then(() => {
+    app.listen(process.env.PORT, () => {
+      console.log(`Server is listening on port ${process.env.PORT}`);
     });
+  })
+  .catch((error) => {
+    console.error(error);
+  });
