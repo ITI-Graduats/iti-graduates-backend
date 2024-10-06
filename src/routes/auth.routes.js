@@ -3,11 +3,6 @@ const auth = require("../middlewares/auth");
 const router = express.Router();
 
 const authRouter = (authController) => {
-    router.post("/createAdmin", async (req, res) => {
-        const admin = await authController.createAdmin(req.body);
-        res.status(201).send({ success: "Admin created successfully", admin });
-    });
-
     router.post("/login", async (req, res) => {
         const { accessToken, refreshToken, admin } = await authController.login(
             req.body
