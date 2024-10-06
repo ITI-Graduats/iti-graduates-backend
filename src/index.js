@@ -19,6 +19,8 @@ const AdminController = require("./controllers/admin.controller");
 
 const UserRepository = require("./repositories/user.repository");
 const AdminRepository = require("./repositories/admin.repository");
+const auth = require("./middlewares/auth");
+const checkRole = require("./middlewares/checkRole");
 
 const userRepository = new UserRepository();
 const adminRepository = new AdminRepository();
@@ -45,7 +47,12 @@ app.use(morgan("short"));
 
 mainRouter.use("/users", userRoutes(userController));
 mainRouter.use("/auth", authRoutes(authController));
-mainRouter.use("/admins", adminRoutes(adminController));
+mainRouter.use(
+    "/admins",
+    auth,
+    checkRole(["super admin"]),
+    adminRoutes(adminController)
+);
 
 app.use("/api/v1", mainRouter);
 

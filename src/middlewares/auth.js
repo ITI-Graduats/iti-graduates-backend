@@ -5,7 +5,7 @@ const jwtVerifyAsync = util.promisify(jwt.verify);
 
 module.exports = async (req, _, next) => {
     const { authorization: accessToken } = req.headers;
-    if (!accessToken) throw new CustomError("Unauthorized", 401);
+    if (!accessToken) throw new CustomError("missing token!!", 401);
     try {
         const payload = await jwtVerifyAsync(
             accessToken,
