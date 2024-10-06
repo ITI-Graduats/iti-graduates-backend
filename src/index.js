@@ -24,10 +24,10 @@ const app = express();
 const mainRouter = express.Router();
 
 app.use(
-  cors({
-    origin: "*",
-    credentials: true,
-  })
+    cors({
+        origin: "*",
+        credentials: true,
+    })
 );
 
 app.use(express.json());
@@ -42,12 +42,12 @@ app.use("/api/v1", mainRouter);
 app.use(errorHandler);
 
 dbConfig
-  .connect()
-  .then(() => {
-    app.listen(process.env.PORT, () => {
-      console.log(`Server is listening on port ${process.env.PORT}`);
+    .connect()
+    .then(() => {
+        app.listen(process.env.PORT, () => {
+            console.log(`Server is listening on port ${process.env.PORT}`);
+        });
+    })
+    .catch((error) => {
+        console.error(error);
     });
-  })
-  .catch((error) => {
-    console.error(error);
-  });
