@@ -11,7 +11,7 @@ module.exports = async (req, _, next) => {
             accessToken,
             process.env.ACCESS_TOKEN_SECRET
         );
-        req.user = payload;
+        req.admin = payload;
     } catch (error) {
         if (error.name === "TokenExpiredError") {
             error.name = "AccessTokenExpiredError";
