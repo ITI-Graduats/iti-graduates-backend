@@ -13,8 +13,8 @@ const connect = async () => {
         if (!existingSuperAdmin) {
             await Admin.create({
                 fullName: "admin",
-                email: "admin@admin.com",
-                password: "12345678",
+                email: process.env.SUPER_ADMIN_EMAIL,
+                password: process.env.SUPER_ADMIN_PASSWORD,
                 role: "super admin",
             });
         }
