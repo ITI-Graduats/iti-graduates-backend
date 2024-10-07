@@ -31,6 +31,14 @@ class AdminController {
             adminData.email
         );
         if (existingAdmin) throw new CustomError("Email already exists", 409);
+
+        // const { branch: branchName } = adminData;
+        // const { _id: branchId } = await this.branchRepository.getBranch(
+        //     branchName
+        // );
+        // if (!branchId) throw new CustomError("No such branch exists!!", 400);
+        // adminData["branch"] = branchId;
+
         const admin = await this.adminRepository.createAdmin(adminData);
         return admin;
     }
@@ -66,7 +74,7 @@ class AdminController {
             throw new CustomError("Invalid admin id!!", 400);
 
         const deletedAdmin = await this.adminRepository.deleteAdmin(adminId);
-        
+
         if (!deletedAdmin) throw new CustomError("No such admin exists!!", 404);
 
         return deletedAdmin;

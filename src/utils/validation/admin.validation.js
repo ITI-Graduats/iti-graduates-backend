@@ -18,6 +18,15 @@ const loginAdminValidationSchema = Yup.object()
 const createAdminValidationSchema = Yup.object()
     .shape({
         fullName: Yup.string().required("fullName is a required field!!"),
+        branch: Yup.string()
+            .oneOf([
+                "Portsaid",
+                "Ismailia",
+                "Smart Village",
+                "New Capital",
+                "Cairo University",
+            ])
+            .required("branch is a required field!!"),
         email: Yup.string()
             .matches(
                 /^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$/,
