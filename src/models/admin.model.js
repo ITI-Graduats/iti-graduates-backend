@@ -1,11 +1,22 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model, SchemaTypes } = require("mongoose");
 const { hash } = require("bcrypt");
 
-const userSchema = new Schema(
+const adminSchema = new Schema(
     {
         fullName: {
             type: String,
             required: [true, "Name is required"],
+        },
+        branch: {
+            // type: SchemaTypes.ObjectId,
+            // ref: "Branch",
+            type: String,
+            required: [
+                function () {
+                    return this.role == "admin";
+                },
+                "branch is required",
+            ],
         },
         email: {
             type: String,
@@ -44,13 +55,11 @@ const userSchema = new Schema(
     }
 );
 
-userSchema.pre("save", async function () {
+adminSchema.pre("save", async function () {
     if (this.isModified("password"))
         this.password = await hash(this.password, 10);
 });
 
-const Admin = model('Admin', userSchema);
+const Admin = model("Admin", adminSchema);
 
 module.exports = Admin;
-
-
