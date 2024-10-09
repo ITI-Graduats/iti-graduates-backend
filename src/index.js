@@ -15,24 +15,29 @@ const userRoutes = require("./routes/user.routes");
 const authRoutes = require("./routes/auth.routes");
 const adminRoutes = require("./routes/admin.routes");
 const trackRoutes = require("./routes/track.routes");
+const graduateRoutes = require("./routes/graduate.routes");
 
 const UserController = require("./controllers/user.controller");
 const AuthController = require("./controllers/auth.controller");
 const AdminController = require("./controllers/admin.controller");
 const TrackController = require("./controllers/track.controller");
+const GraduateController = require("./controllers/graduate.controller");
 
 const UserRepository = require("./repositories/user.repository");
 const AdminRepository = require("./repositories/admin.repository");
 const TrackRepository = require("./repositories/track.repository");
+const GraduateRepository = require("./repositories/graduate.repository");
 
 const userRepository = new UserRepository();
 const adminRepository = new AdminRepository();
 const trackRepository = new TrackRepository();
+const graduateRepository = new GraduateRepository();
 
 const userController = new UserController(userRepository);
 const authController = new AuthController(adminRepository);
 const adminController = new AdminController(adminRepository);
 const trackController = new TrackController(trackRepository);
+const graduateController = new GraduateController(graduateRepository);
 
 const app = express();
 
@@ -59,6 +64,7 @@ mainRouter.use(
   checkRole(["super admin"]),
   adminRoutes(adminController)
 );
+mainRouter.use("/grads", graduateRoutes(graduateController));
 
 app.use("/api/v1", mainRouter);
 
