@@ -1,7 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const auth = require("../middlewares/auth");
-const checkRole = require("../middlewares/checkRole");
 
 const branchRouter = (branchController) => {
   router.get("/", async (req, res) => {

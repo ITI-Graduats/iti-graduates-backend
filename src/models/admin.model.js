@@ -8,9 +8,8 @@ const adminSchema = new Schema(
             required: [true, "Name is required"],
         },
         branch: {
-            // type: SchemaTypes.ObjectId,
-            // ref: "Branch",
-            type: String,
+            type: SchemaTypes.ObjectId,
+            ref: "Branch",
             required: [
                 function () {
                     return this.role == "admin";
