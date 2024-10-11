@@ -25,7 +25,6 @@ class AdminController {
             });
         } catch (err) {
             const errorMessages = err.errors;
-            console.log(err.errors);
             throw new CustomError(
                 errorMessages.join(", ").replace(/"/g, ""),
                 422
@@ -81,7 +80,7 @@ class AdminController {
                 throw new CustomError("No such branch exists!!", 400);
             adminData["branch"] = existingBranch._id;
         }
-        
+
         const updatedAdmin = await this.adminRepository.updateAdmin(
             adminId,
             adminData
