@@ -83,6 +83,7 @@ class AuthController {
                 name: admin.name,
                 email: admin.email,
                 role: admin.role,
+                ...(admin.role === "admin" && { branch: admin.branch }),
             },
             process.env.ACCESS_TOKEN_SECRET,
             { expiresIn: "15m" }

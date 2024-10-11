@@ -1,10 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/auth");
+const checkRole = require("../middlewares/checkRole");
 
 const graduateRouter = (graduateController) => {
-    router.get("/", auth, async (req, res) => {
+    router.get("/all", auth, checkRole(["super admin"]), async (_, res) => {
         const graduates = await graduateController.getAllGrads();
+        res.status(200).send({
+            success: "All graduates fetched successfully",
+            graduates,
+        });
+    });
+    router.get("/", auth, checkRole(["admin"]), async (req, res) => {
+        const { branch: branchId } = req.admin;
+        const graduates = await graduateController.getGradsByBranch(branchId);
         res.status(200).send({
             success: "All graduates fetched successfully",
             graduates,

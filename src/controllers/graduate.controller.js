@@ -5,19 +5,28 @@ const {
 } = require("../utils/validation/graduate.validation");
 
 class graduateController {
-    graduateRepository;
-
-    constructor(graduateRepository) {
+    constructor(graduateRepository, branchRepository) {
         this.graduateRepository = graduateRepository;
+        this.branchRepository = branchRepository;
     }
 
     async getAllGrads() {
         return await this.graduateRepository.getAllGrads();
     }
 
+    async getGradsByBranch(branchId) {
+        const branch = await this.branchRepository.getBranchById(branchId);
+        if (!branch) throw new CustomError("No such branch exists!!", 404);
+        const { name: branchName } = branch;
+        return await this.graduateRepository.getGradsByBranch(branchName);
+    }
+
     async createGrad(graduateData) {
+        const branches = (await this.branchRepository.getAllBranches())?.map(
+            (branch) => branch.name
+        );
         try {
-            await graduateValidationSchema.validate(graduateData, {
+            await graduateValidationSchema(branches).validate(graduateData, {
                 abortEarly: false,
                 stripUnknown: false,
             });
@@ -28,16 +37,26 @@ class graduateController {
                 422
             );
         }
+        const existingGrad = await this.graduateRepository.getGradByEmail(
+            graduateData.email
+        );
+        if (existingGrad) throw new CustomError("Email already exists", 409);
 
         return await this.graduateRepository.createGrad(graduateData);
     }
 
     async updateGrad(id, graduateData) {
+        const branches = (await this.branchRepository.getAllBranches())?.map(
+            (branch) => branch.name
+        );
         try {
-            await updateGraduateValidationSchema.validate(graduateData, {
-                abortEarly: false,
-                stripUnknown: false,
-            });
+            await updateGraduateValidationSchema(branches).validate(
+                graduateData,
+                {
+                    abortEarly: false,
+                    stripUnknown: false,
+                }
+            );
         } catch (err) {
             const errorMessages = err.errors;
             throw new CustomError(

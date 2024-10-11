@@ -8,6 +8,14 @@ class GraduateRepository {
     async getGradById(id) {
         return await Graduate.findById(id);
     }
+    async getGradByEmail(email) {
+        return await Graduate.findOne({ email });
+    }
+    async getGradsByBranch(branchName) {
+        return await Graduate.find({
+            branchesYouCanTeachIn: { $in: [branchName] },
+        });
+    }
 
     async createGrad(graduateData) {
         const graduate = new Graduate(graduateData);

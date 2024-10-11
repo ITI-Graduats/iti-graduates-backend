@@ -45,7 +45,10 @@ const authController = new AuthController(adminRepository);
 const adminController = new AdminController(adminRepository, branchRepository);
 const trackController = new TrackController(trackRepository);
 const branchController = new BranchController(branchRepository);
-const graduateController = new GraduateController(graduateRepository);
+const graduateController = new GraduateController(
+    graduateRepository,
+    branchRepository
+);
 
 const app = express();
 
