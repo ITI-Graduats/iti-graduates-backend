@@ -16,27 +16,32 @@ const adminRoutes = require("./routes/admin.routes");
 const trackRoutes = require("./routes/track.routes");
 const branchRoutes = require("./routes/branch.routes");
 const graduateRoutes = require("./routes/graduate.routes");
+const registrationRequestRoutes = require("./routes/registerationRequest.routes");
 
 const AuthController = require("./controllers/auth.controller");
 const AdminController = require("./controllers/admin.controller");
 const TrackController = require("./controllers/track.controller");
 const BranchController = require("./controllers/branch.controller");
 const GraduateController = require("./controllers/graduate.controller");
+const RegistrationRequestController = require("./controllers/registerationRequest.controller");
 
 const AdminRepository = require("./repositories/admin.repository");
 const TrackRepository = require("./repositories/track.repository");
 const BranchRepository = require("./repositories/branch.repository");
 const GraduateRepository = require("./repositories/graduate.repository");
+const RegistrationRequestRepository = require("./repositories/registerationRequest.repository");
 
 const adminRepository = new AdminRepository();
 const trackRepository = new TrackRepository();
 const branchRepository = new BranchRepository();
 const graduateRepository = new GraduateRepository();
+const registrationRequestRepository = new RegistrationRequestRepository();
 
 const authController = new AuthController(adminRepository);
 const adminController = new AdminController(adminRepository, branchRepository);
 const trackController = new TrackController(trackRepository);
 const branchController = new BranchController(branchRepository);
+const graduateController = new GraduateController(graduateRepository);
 const graduateController = new GraduateController(
     graduateRepository,
     branchRepository
@@ -60,6 +65,8 @@ app.use(morgan("short"));
 
 mainRouter.use("/auth", authRoutes(authController));
 mainRouter.use("/tracks", trackRoutes(trackController));
+mainRouter.use("/admins", auth, checkRole(["super admin"]), adminRoutes(adminController));
+mainRouter.use("/registration-requests", registrationRequestRoutes(registrationRequestController));
 mainRouter.use(
     "/admins",
     auth,
