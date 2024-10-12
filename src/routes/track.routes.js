@@ -1,8 +1,6 @@
 const express = require("express");
 const router = express.Router();
 
-//TODO: apply admin middleware on desired routes
-
 const trackRouter = (trackController) => {
   router.get("/", async (req, res) => {
     const tracks = await trackController.getAllTracks();
