@@ -1,5 +1,4 @@
 const { Schema, model } = require("mongoose");
-const { hash } = require("bcrypt");
 
 const graduateSchema = new Schema(
   {
@@ -28,9 +27,9 @@ const graduateSchema = new Schema(
         "Please fill with a valid email address",
       ],
     },
-    cityOfBirthplace: {
+    cityOfBirth: {
       type: String,
-      required: [true, "City of Birthplace is required"],
+      required: [true, "City of Birth is required"],
     },
     faculty: {
       type: String,
@@ -39,6 +38,16 @@ const graduateSchema = new Schema(
     university: {
       type: String,
       required: [true, "University is required"],
+    },
+    linkedin: {
+      type: String,
+    },
+    isEmployed: {
+      type: Boolean,
+      required: [true, "Eployment status is required"],
+    },
+    freelancingIncome: {
+      type: Number,
     },
     trackName: {
       type: String,
@@ -51,9 +60,12 @@ const graduateSchema = new Schema(
     program: {
       type: String,
       required: [true, "Program is required"],
-      enum: ["9M", "4M"],
+      enum: [
+        "Professional Training Program - (9 Months)",
+        "Intensive Code Camp - (4 Months)",
+      ],
     },
-    graduationYearFromIti: {
+    itiGraduationYear: {
       type: Number,
       required: [true, "Graduation Year from ITI is required"],
     },
@@ -61,9 +73,9 @@ const graduateSchema = new Schema(
       type: String,
       required: [true, "Intake is required"],
     },
-    branchesYouCanTeachIn: {
+    preferredTeachingBranches: {
       type: [String],
-      optional: true,
+      requierd: true,
     },
     preferredCoursesToTeach: {
       type: String,
@@ -81,7 +93,7 @@ const graduateSchema = new Schema(
       type: Number,
       optional: true,
     },
-    workedAsFreelancerBefore: {
+    hasFreelanceExperience: {
       type: Boolean,
       required: true,
     },
