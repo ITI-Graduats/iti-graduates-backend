@@ -22,11 +22,10 @@ class graduateController {
     }
 
     async createGrad(graduateData) {
-        const branches = (await this.branchRepository.getAllBranches())?.map(
-            (branch) => branch.name
-        );
+        const branchNames = await this.getBranches();
+
         try {
-            await graduateValidationSchema(branches).validate(graduateData, {
+            await graduateValidationSchema(branchNames).validate(graduateData, {
                 abortEarly: false,
                 stripUnknown: false,
             });
@@ -37,6 +36,9 @@ class graduateController {
                 422
             );
         }
+        if (!branchNames || !branchNames.length)
+            throw new CustomError("No such branch exists!!", 404);
+
         const existingGrad = await this.graduateRepository.getGradByEmail(
             graduateData.email
         );
@@ -46,11 +48,10 @@ class graduateController {
     }
 
     async updateGrad(id, graduateData) {
-        const branches = (await this.branchRepository.getAllBranches())?.map(
-            (branch) => branch.name
-        );
+        const branchNames = await this.getBranches();
+
         try {
-            await updateGraduateValidationSchema(branches).validate(
+            await updateGraduateValidationSchema(branchNames).validate(
                 graduateData,
                 {
                     abortEarly: false,
@@ -64,6 +65,9 @@ class graduateController {
                 422
             );
         }
+        if (!branchNames || !branchNames.length)
+            throw new CustomError("No such branch exists!!", 404);
+
         const existingGraduate = await this.graduateRepository.getGradById(id);
         if (!existingGraduate) throw new CustomError("Graduate not found", 404);
         return await this.graduateRepository.updateGrad(id, graduateData);
@@ -73,6 +77,12 @@ class graduateController {
         const deletedGraduate = await this.graduateRepository.deleteGrad(id);
         if (!deletedGraduate) throw new CustomError("Graduate not found", 404);
         return deletedGraduate;
+    }
+
+    async getBranches() {
+        const branches = await this.branchRepository.getAllBranches();
+        const branchNames = branches?.map((branch) => branch.name);
+        return branchNames;
     }
 }
 

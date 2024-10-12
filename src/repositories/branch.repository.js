@@ -9,10 +9,6 @@ class BranchRepository {
     return await Branch.findById(id);
   }
 
-  async getBranchByName(name) {
-    return await Branch.findOne({name});
-  }
-
   async addBranch(branchData) {
     const branch = new Branch(branchData);
     return await branch.save();
