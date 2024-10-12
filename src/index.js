@@ -68,12 +68,6 @@ app.use(morgan("short"));
 mainRouter.use("/auth", authRoutes(authController));
 mainRouter.use("/tracks", trackRoutes(trackController));
 mainRouter.use(
-  "/admins",
-  auth,
-  checkRole(["super admin"]),
-  adminRoutes(adminController)
-);
-mainRouter.use(
   "/registration-requests",
   registrationRequestRoutes(registrationRequestController)
 );
@@ -83,7 +77,7 @@ mainRouter.use(
   checkRole(["super admin"]),
   adminRoutes(adminController)
 );
-mainRouter.use("/branches", auth, branchRoutes(branchController));
+mainRouter.use("/branches", branchRoutes(branchController));
 mainRouter.use("/graduates", graduateRoutes(graduateController));
 
 app.use("/api/v1", mainRouter);
