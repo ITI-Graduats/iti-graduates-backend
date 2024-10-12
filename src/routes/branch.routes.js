@@ -1,10 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const auth = require("../middlewares/auth");
-const checkRole = require("../middlewares/checkRole");
 
 const branchRouter = (branchController) => {
-  router.get("/", async (req, res) => {
+  router.get("/", async (_, res) => {
     const branches = await branchController.getAllBranches();
     res.status(200).send({ success: "All branches fetched successfully", branches });
   });

@@ -2,12 +2,12 @@ const express = require("express");
 require("express-async-errors");
 const cors = require("cors");
 const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const dbConfig = require("./config/db");
 const errorHandler = require("./middlewares/errorHandler");
 const requestLogger = require("./middlewares/requestLogger");
-const cookieParser = require("cookie-parser");
 const auth = require("./middlewares/auth");
 const checkRole = require("./middlewares/checkRole");
 
@@ -34,20 +34,23 @@ const branchRepository = new BranchRepository();
 const graduateRepository = new GraduateRepository();
 
 const authController = new AuthController(adminRepository);
-const adminController = new AdminController(adminRepository);
+const adminController = new AdminController(adminRepository, branchRepository);
 const trackController = new TrackController(trackRepository);
 const branchController = new BranchController(branchRepository);
-const graduateController = new GraduateController(graduateRepository);
+const graduateController = new GraduateController(
+    graduateRepository,
+    branchRepository
+);
 
 const app = express();
 
 const mainRouter = express.Router();
 
 app.use(
-  cors({
-    origin: "*",
-    credentials: true,
-  })
+    cors({
+        origin: "*",
+        credentials: true,
+    })
 );
 
 app.use(express.json());
@@ -58,25 +61,25 @@ app.use(morgan("short"));
 mainRouter.use("/auth", authRoutes(authController));
 mainRouter.use("/tracks", trackRoutes(trackController));
 mainRouter.use(
-  "/admins",
-  auth,
-  checkRole(["super admin"]),
-  adminRoutes(adminController)
+    "/admins",
+    auth,
+    checkRole(["super admin"]),
+    adminRoutes(adminController)
 );
-mainRouter.use("/branches", branchRoutes(branchController));
-mainRouter.use("/grads", graduateRoutes(graduateController));
+mainRouter.use("/branches", auth, branchRoutes(branchController));
+mainRouter.use("/graduates", graduateRoutes(graduateController));
 
 app.use("/api/v1", mainRouter);
 
 app.use(errorHandler);
 
 dbConfig
-  .connect()
-  .then(() => {
-    app.listen(process.env.PORT, () => {
-      console.log(`Server is listening on port ${process.env.PORT}`);
+    .connect()
+    .then(() => {
+        app.listen(process.env.PORT, () => {
+            console.log(`Server is listening on port ${process.env.PORT}`);
+        });
+    })
+    .catch((error) => {
+        console.error(error);
     });
-  })
-  .catch((error) => {
-    console.error(error);
-  });
