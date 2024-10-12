@@ -13,7 +13,7 @@ class GraduateRepository {
     }
     async getGradsByBranch(branchName) {
         return await Graduate.find({
-            branchesYouCanTeachIn: { $in: [branchName] },
+            preferredTeachingBranches: { $in: [branchName] },
         });
     }
 
