@@ -1,8 +1,8 @@
 const RegistrationRequest = require("../models/registerationRequest.model");
 
 class RegistrationRequestRepository {
-  async getAllRequests(query = {}) {
-    return await RegistrationRequest.find(query);
+  async getAllRequests() {
+    return await RegistrationRequest.find({});
   }
 
   async getRequestById(id) {
@@ -12,18 +12,14 @@ class RegistrationRequestRepository {
   async getRequestByEmail(email) {
     return await RegistrationRequest.findOne({ email });
   }
-
+  async getRequestsByBranch(branchName) {
+    return await RegistrationRequest.find({
+      preferredTeachingBranches: { $in: [branchName] },
+    });
+  }
   async createRequest(requestData) {
     const newRequest = new RegistrationRequest(requestData);
     return await newRequest.save();
-  }
-
-  async acceptRequest(id) {
-    return await RegistrationRequest.findByIdAndUpdate(id, { status: "accepted" }, { new: true });
-  }
-
-  async declineRequest(id) {
-    return await RegistrationRequest.findByIdAndUpdate(id, { status: "declined" }, { new: true });
   }
 
   async deleteRequest(id) {

@@ -46,7 +46,9 @@ const graduateController = new GraduateController(
   branchRepository
 );
 const registrationRequestController = new RegistrationRequestController(
-  registrationRequestRepository
+  registrationRequestRepository,
+  graduateRepository,
+  branchRepository
 );
 
 const app = express();
@@ -68,7 +70,7 @@ app.use(morgan("short"));
 mainRouter.use("/auth", authRoutes(authController));
 mainRouter.use("/tracks", trackRoutes(trackController));
 mainRouter.use(
-  "/registration-requests",
+  "/registrationRequests",
   registrationRequestRoutes(registrationRequestController)
 );
 mainRouter.use(

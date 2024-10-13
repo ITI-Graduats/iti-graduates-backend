@@ -8,7 +8,7 @@ const graduateSchema = new Schema(
     },
     personalPhoto: {
       type: String,
-      optional: true,
+      default: null,
     },
     mobile: {
       type: String,
@@ -41,6 +41,7 @@ const graduateSchema = new Schema(
     },
     linkedin: {
       type: String,
+      default: null,
     },
     isEmployed: {
       type: Boolean,
@@ -48,6 +49,7 @@ const graduateSchema = new Schema(
     },
     freelancingIncome: {
       type: Number,
+      default: 0,
     },
     trackName: {
       type: String,
@@ -79,19 +81,19 @@ const graduateSchema = new Schema(
     },
     preferredCoursesToTeach: {
       type: String,
-      optional: true,
+      default: null,
     },
     fullJobTitle: {
       type: String,
-      optional: true,
+      default: null,
     },
     companyName: {
       type: String,
-      optional: true,
+      default: null,
     },
     yearsOfExperience: {
       type: Number,
-      optional: true,
+      default: null,
     },
     hasFreelanceExperience: {
       type: Boolean,

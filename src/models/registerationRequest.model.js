@@ -8,10 +8,7 @@ const registrationRequestSchema = new Schema(
     },
     personalPhoto: {
       type: String,
-      optional: true,
-    },
-    personalPhotoFileId: {
-      type: String,
+      default: null
     },
     mobile: {
       type: String,
@@ -42,6 +39,18 @@ const registrationRequestSchema = new Schema(
       type: String,
       required: [true, "University is required"],
     },
+    linkedin: {
+      type: String,
+      default: null,
+    },
+    isEmployed: {
+      type: Boolean,
+      required: [true, "Eployment status is required"],
+    },
+    freelancingIncome: {
+      type: Number,
+      default: 0,
+    },
     trackName: {
       type: String,
       required: [true, "Track Name is required"],
@@ -60,7 +69,7 @@ const registrationRequestSchema = new Schema(
     },
     itiGraduationYear: {
       type: Number,
-      required: [true, " ITI Graduation Year is required"],
+      required: [true, "Graduation Year from ITI is required"],
     },
     intake: {
       type: String,
@@ -68,23 +77,23 @@ const registrationRequestSchema = new Schema(
     },
     preferredTeachingBranches: {
       type: [String],
-      required: true,
+      requierd: true,
     },
     preferredCoursesToTeach: {
       type: String,
-      optional: true,
+      default: null,
     },
     fullJobTitle: {
       type: String,
-      optional: true,
+      default: null,
     },
     companyName: {
       type: String,
-      optional: true,
+      default: null,
     },
     yearsOfExperience: {
       type: Number,
-      optional: true,
+      default: null,
     },
     hasFreelanceExperience: {
       type: Boolean,
@@ -103,15 +112,14 @@ const registrationRequestSchema = new Schema(
         delete ret.__v;
         delete ret.updatedAt;
         delete ret.createdAt;
-        delete ret.personalPhotoId;
       },
     },
   }
 );
 
-const registrationRequest = model(
-  "registrationRequest",
+const RegistrationRequest = model(
+  "RegistrationRequest",
   registrationRequestSchema
 );
 
-module.exports = registrationRequest;
+module.exports = RegistrationRequest;
