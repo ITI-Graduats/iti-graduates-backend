@@ -1,5 +1,4 @@
 const { Schema, model } = require("mongoose");
-const { hash } = require("bcrypt");
 
 const registrationRequestSchema = new Schema(
   {

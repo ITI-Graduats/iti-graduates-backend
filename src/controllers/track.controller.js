@@ -16,18 +16,34 @@ class TrackController {
   }
 
   async addTrack(trackData) {
-    const isValid = await trackValidationSchema.isValid(trackData, {
-      abortEarly: false,
-    });
-    if (!isValid) throw new CustomError("Track data validation failed", 400);
+    try {
+      await trackValidationSchema.validate(trackData, {
+        abortEarly: false,
+        stripUnknown: false,
+      });
+    } catch (err) {
+      const errorMessages = err.errors;
+      throw new CustomError(errorMessages.join(", ").replace(/"/g, ""), 422);
+    }
+
+    const existingTrack = await this.trackRepository.getTrackByName(
+      trackData.name
+    );
+    if (existingTrack) throw new CustomError("Track already exists", 409);
+
     return await this.trackRepository.addTrack(trackData);
   }
 
   async updateTrack(id, trackData) {
-    const isValid = await updateTrackValidationSchema.isValid(trackData, {
-      abortEarly: false,
-    });
-    if (!isValid) throw new CustomError("Track data validation failed", 400);
+    try {
+      await updateTrackValidationSchema.validate(trackData, {
+        abortEarly: false,
+        stripUnknown: false,
+      });
+    } catch (err) {
+      const errorMessages = err.errors;
+      throw new CustomError(errorMessages.join(", ").replace(/"/g, ""), 422);
+    }
     const existingTrack = await this.trackRepository.getTrackById(id);
     if (!existingTrack) throw new CustomError("Track not found", 404);
     return await this.trackRepository.updateTrack(id, trackData);
