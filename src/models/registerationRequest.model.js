@@ -11,20 +11,29 @@ const registrationRequestSchema = new Schema(
       type: String,
       optional: true,
     },
+    personalPhotoFileId: {
+      type: String,
+    },
     mobile: {
       type: String,
       required: true,
-      match: [/^(010|011|012|015)\d{8}$/, "Please enter a valid Egyptian phone number"],
+      match: [
+        /^(010|011|012|015)\d{8}$/,
+        "Please enter a valid Egyptian phone number",
+      ],
     },
     email: {
       type: String,
       unique: true,
       required: [true, "Email is required"],
-      match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "Please fill with a valid email address"],
+      match: [
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        "Please fill with a valid email address",
+      ],
     },
-    cityOfBirthplace: {
+    cityOfBirth: {
       type: String,
-      required: [true, "City of Birthplace is required"],
+      required: [true, "City of Birth is required"],
     },
     faculty: {
       type: String,
@@ -45,19 +54,22 @@ const registrationRequestSchema = new Schema(
     program: {
       type: String,
       required: [true, "Program is required"],
-      enum: ["9M", "4M"],
+      enum: [
+        "Professional Training Program - (9 Months)",
+        "Intensive Code Camp - (4 Months)",
+      ],
     },
-    graduationYearFromIti: {
+    itiGraduationYear: {
       type: Number,
-      required: [true, "Graduation Year from ITI is required"],
+      required: [true, " ITI Graduation Year is required"],
     },
     intake: {
       type: String,
       required: [true, "Intake is required"],
     },
-    branchesYouCanTeachIn: {
+    preferredTeachingBranches: {
       type: [String],
-      optional: true,
+      required: true,
     },
     preferredCoursesToTeach: {
       type: String,
@@ -75,7 +87,7 @@ const registrationRequestSchema = new Schema(
       type: Number,
       optional: true,
     },
-    workedAsFreelancerBefore: {
+    hasFreelanceExperience: {
       type: Boolean,
       required: true,
     },
@@ -92,11 +104,15 @@ const registrationRequestSchema = new Schema(
         delete ret.__v;
         delete ret.updatedAt;
         delete ret.createdAt;
+        delete ret.personalPhotoId;
       },
     },
   }
 );
 
-const registrationRequest = model("registrationRequest", registrationRequestSchema);
+const registrationRequest = model(
+  "registrationRequest",
+  registrationRequestSchema
+);
 
 module.exports = registrationRequest;
