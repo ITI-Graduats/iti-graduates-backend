@@ -11,6 +11,9 @@ const registrationRequestSchema = new Schema(
       type: String,
       optional: true,
     },
+    personalPhotoFileId: {
+      type: String,
+    },
     mobile: {
       type: String,
       required: true,
@@ -101,6 +104,7 @@ const registrationRequestSchema = new Schema(
         delete ret.__v;
         delete ret.updatedAt;
         delete ret.createdAt;
+        delete ret.personalPhotoId;
       },
     },
   }

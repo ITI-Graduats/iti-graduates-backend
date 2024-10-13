@@ -1,6 +1,9 @@
 const { isValidObjectId } = require("mongoose");
 const CustomError = require("../utils/CustomError");
-const { graduateValidationSchema } = require("../utils/validation/graduate.validation");
+const { handleIncommingImage } = require("../utils/imageKit.config");
+const {
+  graduateValidationSchema,
+} = require("../utils/validation/graduate.validation");
 
 class RegistrationRequestController {
   constructor(registrationRequestRepository, graduateRepository) {
@@ -22,17 +25,27 @@ class RegistrationRequestController {
       const errorMessages = err.errors;
       throw new CustomError(errorMessages.join(", ").replace(/"/g, ""), 422);
     }
-    const existingRequest = await this.registrationRequestRepository.getRequestByEmail(requestData.email);
+    const existingRequest =
+      await this.registrationRequestRepository.getRequestByEmail(
+        requestData.email
+      );
     if (existingRequest) throw new CustomError("Email already exists", 409);
 
-    const request = await this.registrationRequestRepository.createRequest(requestData);
+    await handleIncommingImage(requestData);
+
+    const request = await this.registrationRequestRepository.createRequest(
+      requestData
+    );
     return request;
   }
 
   async acceptRequest(requestId) {
-    if (!isValidObjectId(requestId)) throw new CustomError("Invalid request id", 400);
+    if (!isValidObjectId(requestId))
+      throw new CustomError("Invalid request id", 400);
 
-    const request = await this.registrationRequestRepository.getRequestById(requestId);
+    const request = await this.registrationRequestRepository.getRequestById(
+      requestId
+    );
     if (!request) throw new CustomError("No such request exists", 404);
 
     const graduate = await this.graduateRepository.createGraduate({
@@ -49,18 +62,22 @@ class RegistrationRequestController {
   }
 
   async declineRequest(requestId) {
-    if (!isValidObjectId(requestId)) throw new CustomError("Invalid request id", 400);
+    if (!isValidObjectId(requestId))
+      throw new CustomError("Invalid request id", 400);
 
-    const declinedRequest = await this.registrationRequestRepository.declineRequest(requestId);
+    const declinedRequest =
+      await this.registrationRequestRepository.declineRequest(requestId);
     if (!declinedRequest) throw new CustomError("No such request exists", 404);
 
     return declinedRequest;
   }
 
   async deleteRequest(requestId) {
-    if (!isValidObjectId(requestId)) throw new CustomError("Invalid request id", 400);
+    if (!isValidObjectId(requestId))
+      throw new CustomError("Invalid request id", 400);
 
-    const deletedRequest = await this.registrationRequestRepository.deleteRequest(requestId);
+    const deletedRequest =
+      await this.registrationRequestRepository.deleteRequest(requestId);
     if (!deletedRequest) throw new CustomError("No such request exists", 404);
 
     return deletedRequest;
