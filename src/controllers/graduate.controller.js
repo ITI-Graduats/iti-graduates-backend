@@ -1,13 +1,15 @@
+const { redisClient } = require("../config/redis");
+const cacheResource = require("../utils/cacheResource");
 const CustomError = require("../utils/CustomError");
 const {
-  graduateValidationSchema,
   updateGraduateValidationSchema,
 } = require("../utils/validation/graduate.validation");
 
 class graduateController {
-  constructor(graduateRepository, branchRepository) {
+  constructor(graduateRepository, branchRepository, trackRepository) {
     this.graduateRepository = graduateRepository;
     this.branchRepository = branchRepository;
+    this.trackRepository = trackRepository;
   }
 
   async getAllGrads() {
@@ -21,31 +23,15 @@ class graduateController {
     return await this.graduateRepository.getGradsByBranch(branchName);
   }
 
-  async createGrad(graduateData) {
-    const branchNames = await this.branchRepository.getAllBranches();
-    delete graduateData._id;
-    try {
-      await graduateValidationSchema(branches, tracks).validate(graduateData, {
-        abortEarly: false,
-        stripUnknown: false,
-      });
-    } catch (err) {
-      console.log(err);
-      const errorMessages = err.errors;
-      throw new CustomError(errorMessages.join(", ").replace(/"/g, ""), 422);
-    }
-    if (!branchNames || !branchNames.length)
-      throw new CustomError("No such branch exists!!", 404);
-
-    const existingGrad = await this.graduateRepository.getGradByEmail(
-      graduateData.email
-    );
-    if (existingGrad) throw new CustomError("Email already exists", 409);
-
-    return await this.graduateRepository.createGrad(graduateData);
-  }
-
   async updateGrad(id, graduateData) {
+    const branches = await this.getCachedResource(
+      "branches",
+      this.branchRepository.getAllBranches
+    );
+    const tracks = await this.getCachedResource(
+      "tracks",
+      this.trackRepository.getAllTracks
+    );
     try {
       await updateGraduateValidationSchema(branches, tracks).validate(
         graduateData,
@@ -75,11 +61,21 @@ class graduateController {
     return deletedGraduate;
   }
 
-  //   async getBranches() {
-  //     const branches = await this.branchRepository.getAllBranches();
-  //     const branchNames = branches?.map((branch) => branch.name);
-  //     return branchNames;
-  //   }
+  async getCachedResource(resourceName, resourceFetchFn) {
+    if (await redisClient.exists(resourceName)) {
+      const cachedResources = await redisClient.zRange(resourceName, 0, -1);
+      return cachedResources.map(
+        (cachedResource) => JSON.parse(cachedResource).name
+      );
+    }
+
+    const resources = await cacheResource(
+      redisClient,
+      resourceName,
+      resourceFetchFn
+    );
+    return resources.map((resource) => resource.name);
+  }
 }
 
 module.exports = graduateController;

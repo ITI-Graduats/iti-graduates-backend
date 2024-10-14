@@ -40,14 +40,6 @@ const graduateRouter = (graduateController) => {
     });
   });
 
-  router.post("/", async (req, res) => {
-    const graduate = await graduateController.createGrad(req.body);
-    res.status(200).send({
-      success: "Graduate created successfully",
-      graduate,
-    });
-  });
-
   router.delete("/:id", auth, async (req, res) => {
     const graduate = await graduateController.deleteGrad(req.params.id);
     res.status(200).send({

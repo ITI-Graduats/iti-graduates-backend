@@ -43,7 +43,8 @@ const trackController = new TrackController(trackRepository);
 const branchController = new BranchController(branchRepository);
 const graduateController = new GraduateController(
   graduateRepository,
-  branchRepository
+  branchRepository,
+  trackRepository
 );
 const registrationRequestController = new RegistrationRequestController(
   registrationRequestRepository,
