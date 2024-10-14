@@ -4,9 +4,6 @@ const {
   updateGraduateValidationSchema,
 } = require("../utils/validation/graduate.validation");
 
-const { branches } = require("../data/branches.json");
-const { tracks } = require("../data/tracks.json");
-
 class graduateController {
   constructor(graduateRepository, branchRepository) {
     this.graduateRepository = graduateRepository;
