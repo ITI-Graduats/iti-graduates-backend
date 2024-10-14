@@ -25,11 +25,7 @@ class BranchRepository {
   }
 
   async deleteBranch(id) {
-    return await Branch.findByIdAndUpdate(
-      id,
-      { isActive: false },
-      { new: true }
-    );
+    return await Branch.findByIdAndDelete(id);
   }
 }
 

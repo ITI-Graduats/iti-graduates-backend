@@ -1,3 +1,5 @@
+const { redisClient } = require("../config/redis");
+const cacheResource = require("../utils/cacheResource");
 const { isValidObjectId } = require("mongoose");
 const CustomError = require("../utils/CustomError");
 const { handleIncommingImage } = require("../utils/imageKit.config");
@@ -5,18 +7,17 @@ const {
   graduateValidationSchema,
 } = require("../utils/validation/graduate.validation");
 
-const { branches } = require("../data/branches.json");
-const { tracks } = require("../data/tracks.json");
-
 class RegistrationRequestController {
   constructor(
     registrationRequestRepository,
     graduateRepository,
-    branchRepository
+    branchRepository,
+    trackRepository
   ) {
     this.registrationRequestRepository = registrationRequestRepository;
     this.graduateRepository = graduateRepository;
     this.branchRepository = branchRepository;
+    this.trackRepository = trackRepository;
   }
 
   async getAllRequests() {
@@ -33,6 +34,14 @@ class RegistrationRequestController {
   }
 
   async createRequest(requestData) {
+    const branches = await this.getCachedResource(
+      "branches",
+      this.branchRepository.getAllBranches
+    );
+    const tracks = await this.getCachedResource(
+      "tracks",
+      this.trackRepository.getAllTracks
+    );
     try {
       await graduateValidationSchema(branches, tracks).validate(requestData, {
         abortEarly: false,
@@ -91,6 +100,22 @@ class RegistrationRequestController {
     }
 
     return await this.registrationRequestRepository.deleteRequest(requestId);
+  }
+
+  async getCachedResource(resourceName, resourceFetchFn) {
+    if (await redisClient.exists(resourceName)) {
+      const cachedResources = await redisClient.zRange(resourceName, 0, -1);
+      return cachedResources.map(
+        (cachedResource) => JSON.parse(cachedResource).name
+      );
+    }
+
+    const resources = await cacheResource(
+      redisClient,
+      resourceName,
+      resourceFetchFn
+    );
+    return resources.map((resource) => resource.name);
   }
 }
 

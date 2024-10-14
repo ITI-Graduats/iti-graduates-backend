@@ -48,7 +48,8 @@ const graduateController = new GraduateController(
 const registrationRequestController = new RegistrationRequestController(
   registrationRequestRepository,
   graduateRepository,
-  branchRepository
+  branchRepository,
+  trackRepository
 );
 
 const app = express();

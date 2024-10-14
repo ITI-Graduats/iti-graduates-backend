@@ -1,3 +1,6 @@
+const { isValidObjectId } = require("mongoose");
+const { redisClient } = require("../config/redis");
+const cacheResource = require("../utils/cacheResource");
 const CustomError = require("../utils/CustomError");
 const {
   trackValidationSchema,
@@ -5,14 +8,22 @@ const {
 } = require("../utils/validation/track.validation");
 
 class TrackController {
-  trackRepository;
-
   constructor(trackRepository) {
     this.trackRepository = trackRepository;
   }
 
   async getAllTracks() {
-    return await this.trackRepository.getAllTracks();
+    if (await redisClient.exists("tracks")) {
+      const cachedTracks = await redisClient.zRange("tracks", 0, -1);
+      return cachedTracks.map((track) => JSON.parse(track));
+    }
+
+    const tracks = await cacheResource(
+      redisClient,
+      "tracks",
+      await this.trackRepository.getAllTracks
+    );
+    return tracks;
   }
 
   async addTrack(trackData) {
@@ -31,10 +42,21 @@ class TrackController {
     );
     if (existingTrack) throw new CustomError("Track already exists", 409);
 
-    return await this.trackRepository.addTrack(trackData);
+    const addedTrack = await this.trackRepository.addTrack(trackData);
+    if (await redisClient.exists("tracks")) await redisClient.del("tracks");
+
+    await cacheResource(
+      redisClient,
+      "tracks",
+      await this.trackRepository.getAllTracks
+    );
+
+    return addedTrack;
   }
 
   async updateTrack(id, trackData) {
+    if (!isValidObjectId(id)) throw new CustomError("Invalid track id", 400);
+
     try {
       await updateTrackValidationSchema.validate(trackData, {
         abortEarly: false,
@@ -46,12 +68,32 @@ class TrackController {
     }
     const existingTrack = await this.trackRepository.getTrackById(id);
     if (!existingTrack) throw new CustomError("Track not found", 404);
-    return await this.trackRepository.updateTrack(id, trackData);
+
+    const updatedTrack = await this.trackRepository.updateTrack(id, trackData);
+    if (await redisClient.exists("tracks")) await redisClient.del("tracks");
+
+    await cacheResource(
+      redisClient,
+      "tracks",
+      await this.trackRepository.getAllTracks
+    );
+
+    return updatedTrack;
   }
 
   async deleteTrack(id) {
+    if (!isValidObjectId(id)) throw new CustomError("Invalid track id", 400);
+
     const deletedTrack = await this.trackRepository.deleteTrack(id);
     if (!deletedTrack) throw new CustomError("Track not found", 404);
+
+    if (await redisClient.exists("tracks")) await redisClient.del("tracks");
+
+    await cacheResource(
+      redisClient,
+      "tracks",
+      await this.trackRepository.getAllTracks
+    );
     return deletedTrack;
   }
 }
