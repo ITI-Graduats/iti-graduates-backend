@@ -8,7 +8,7 @@ const trackSchema = Schema(
     },
     description: {
       type: String,
-      required: [true, "Description is required"],
+      default: null,
     },
     isActive: {
       type: Boolean,

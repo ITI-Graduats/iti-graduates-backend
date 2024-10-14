@@ -8,6 +8,9 @@ class BranchRepository {
   async getBranchById(id) {
     return await Branch.findById(id);
   }
+  async getBranchByName(name) {
+    return await Branch.findOne({ name });
+  }
 
   async addBranch(branchData) {
     const branch = new Branch(branchData);
@@ -22,7 +25,11 @@ class BranchRepository {
   }
 
   async deleteBranch(id) {
-    return await Branch.findByIdAndUpdate(id, { isActive: false }, { new: true });
+    return await Branch.findByIdAndUpdate(
+      id,
+      { isActive: false },
+      { new: true }
+    );
   }
 }
 

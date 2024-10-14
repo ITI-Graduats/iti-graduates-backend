@@ -5,19 +5,36 @@ const {
   graduateValidationSchema,
 } = require("../utils/validation/graduate.validation");
 
+const { branches } = require("../data/branches.json");
+const { tracks } = require("../data/tracks.json");
+
 class RegistrationRequestController {
-  constructor(registrationRequestRepository, graduateRepository) {
+  constructor(
+    registrationRequestRepository,
+    graduateRepository,
+    branchRepository
+  ) {
     this.registrationRequestRepository = registrationRequestRepository;
     this.graduateRepository = graduateRepository;
+    this.branchRepository = branchRepository;
   }
 
-  async getAllRequests(query) {
-    return await this.registrationRequestRepository.getAllRequests(query);
+  async getAllRequests() {
+    return await this.registrationRequestRepository.getAllRequests();
+  }
+
+  async getRequestsByBranch(branchId) {
+    const branch = await this.branchRepository.getBranchById(branchId);
+    if (!branch) throw new CustomError("No such branch exists!!", 404);
+    const { name: branchName } = branch;
+    return await this.registrationRequestRepository.getRequestsByBranch(
+      branchName
+    );
   }
 
   async createRequest(requestData) {
     try {
-      await graduateValidationSchema.validate(requestData, {
+      await graduateValidationSchema(branches, tracks).validate(requestData, {
         abortEarly: false,
         stripUnknown: false,
       });
@@ -25,11 +42,17 @@ class RegistrationRequestController {
       const errorMessages = err.errors;
       throw new CustomError(errorMessages.join(", ").replace(/"/g, ""), 422);
     }
+
+    if (!branches || !branches.length)
+      throw new CustomError("No such branch exists!!", 404);
+    if (!tracks || !tracks.length)
+      throw new CustomError("No such track exists!!", 404);
+
     const existingRequest =
       await this.registrationRequestRepository.getRequestByEmail(
         requestData.email
       );
-    if (existingRequest) throw new CustomError("Email already exists", 409);
+    if (existingRequest) throw new CustomError("Request already exists", 409);
 
     await handleIncommingImage(requestData);
 
@@ -39,48 +62,35 @@ class RegistrationRequestController {
     return request;
   }
 
-  async acceptRequest(requestId) {
+  async acceptOrRejectRequest(requestId, action) {
     if (!isValidObjectId(requestId))
       throw new CustomError("Invalid request id", 400);
+
+    if (!["accept", "reject"].includes(action))
+      throw new CustomError("action has to be either accept or reject!!", 400);
 
     const request = await this.registrationRequestRepository.getRequestById(
       requestId
     );
     if (!request) throw new CustomError("No such request exists", 404);
 
-    const graduate = await this.graduateRepository.createGraduate({
-      fullName: request.fullName,
-      email: request.email,
-      phoneNumber: request.phoneNumber,
-      branch: request.branch,
-      track: request.track,
-    });
+    const { _id, createdAt, updatedAt, __v, ...requestBody } = request._doc;
 
-    await this.registrationRequestRepository.deleteRequest(requestId);
+    if (action === "accept") {
+      const existingGrad = await this.graduateRepository.getGradByEmail(
+        requestBody.email
+      );
 
-    return graduate;
-  }
+      if (existingGrad) {
+        throw new CustomError(
+          "You have Already Registered your data, call your ITI instructor for any required modifications",
+          409
+        );
+      }
+      await this.graduateRepository.createGrad(requestBody);
+    }
 
-  async declineRequest(requestId) {
-    if (!isValidObjectId(requestId))
-      throw new CustomError("Invalid request id", 400);
-
-    const declinedRequest =
-      await this.registrationRequestRepository.declineRequest(requestId);
-    if (!declinedRequest) throw new CustomError("No such request exists", 404);
-
-    return declinedRequest;
-  }
-
-  async deleteRequest(requestId) {
-    if (!isValidObjectId(requestId))
-      throw new CustomError("Invalid request id", 400);
-
-    const deletedRequest =
-      await this.registrationRequestRepository.deleteRequest(requestId);
-    if (!deletedRequest) throw new CustomError("No such request exists", 404);
-
-    return deletedRequest;
+    return await this.registrationRequestRepository.deleteRequest(requestId);
   }
 }
 

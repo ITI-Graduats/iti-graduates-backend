@@ -9,6 +9,10 @@ class TrackRepository {
     return await Track.findById(id);
   }
 
+  async getTrackByName(name) {
+    return await Track.findOne({ name });
+  }
+
   async addTrack(trackData) {
     const track = new Track(trackData);
     return await track.save();

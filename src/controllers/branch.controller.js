@@ -1,5 +1,8 @@
 const CustomError = require("../utils/CustomError");
-const { branchValidationSchema, updateBranchValidationSchema } = require("../utils/validation/branch.validation");
+const {
+  branchValidationSchema,
+  updateBranchValidationSchema,
+} = require("../utils/validation/branch.validation");
 
 class BranchController {
   branchRepository;
@@ -13,12 +16,34 @@ class BranchController {
   }
 
   async addBranch(branchData) {
-    await this.validateData(branchValidationSchema, branchData);
+    try {
+      await branchValidationSchema.validate(branchData, {
+        abortEarly: false,
+        stripUnknown: false,
+      });
+    } catch (err) {
+      const errorMessages = err.errors;
+      throw new CustomError(errorMessages.join(", ").replace(/"/g, ""), 422);
+    }
+    
+    const existingBranch = await this.branchRepository.getBranchByName(
+      branchData.name
+    );
+    if (existingBranch) throw new CustomError("Branch already exists", 409);
+
     return await this.branchRepository.addBranch(branchData);
   }
 
   async updateBranch(id, branchData) {
-    await this.validateData(updateBranchValidationSchema, branchData);
+    try {
+      await updateBranchValidationSchema.validate(branchData, {
+        abortEarly: false,
+        stripUnknown: false,
+      });
+    } catch (err) {
+      const errorMessages = err.errors;
+      throw new CustomError(errorMessages.join(", ").replace(/"/g, ""), 422);
+    }
     const existingBranch = await this.branchRepository.getBranchById(id);
     if (!existingBranch) throw new CustomError("Branch not found", 404);
     return await this.branchRepository.updateBranch(id, branchData);
@@ -28,14 +53,6 @@ class BranchController {
     const deletedBranch = await this.branchRepository.deleteBranch(id);
     if (!deletedBranch) throw new CustomError("Branch not found", 404);
     return deletedBranch;
-  }
-
-  async validateData(schema, data) {
-    const isValid = await schema.isValid(data, { abortEarly: false });
-    if (!isValid) {
-      const errors = await schema.validate(data, { abortEarly: false }).catch((err) => err.errors);
-      throw new CustomError(errors.join(", "), 400);
-    }
   }
 }
 
