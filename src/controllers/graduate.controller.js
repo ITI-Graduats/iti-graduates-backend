@@ -24,31 +24,29 @@ class graduateController {
     return await this.graduateRepository.getGradsByBranch(branchName);
   }
 
-  // async createGrad(graduateData) {
-  //     const branchNames = await this.getBranches();
+  async createGrad(graduateData) {
+    const branchNames = await this.branchRepository.getAllBranches();
+    delete graduateData._id;
+    try {
+      await graduateValidationSchema(branches, tracks).validate(graduateData, {
+        abortEarly: false,
+        stripUnknown: false,
+      });
+    } catch (err) {
+      console.log(err);
+      const errorMessages = err.errors;
+      throw new CustomError(errorMessages.join(", ").replace(/"/g, ""), 422);
+    }
+    if (!branchNames || !branchNames.length)
+      throw new CustomError("No such branch exists!!", 404);
 
-  //     try {
-  //         await graduateValidationSchema.validate(graduateData, {
-  //             abortEarly: false,
-  //             stripUnknown: false,
-  //         });
-  //     } catch (err) {
-  //         const errorMessages = err.errors;
-  //         throw new CustomError(
-  //             errorMessages.join(", ").replace(/"/g, ""),
-  //             422
-  //         );
-  //     }
-  //     if (!branchNames || !branchNames.length)
-  //         throw new CustomError("No such branch exists!!", 404);
+    const existingGrad = await this.graduateRepository.getGradByEmail(
+      graduateData.email
+    );
+    if (existingGrad) throw new CustomError("Email already exists", 409);
 
-  //     const existingGrad = await this.graduateRepository.getGradByEmail(
-  //         graduateData.email
-  //     );
-  //     if (existingGrad) throw new CustomError("Email already exists", 409);
-
-  //     return await this.graduateRepository.createGrad(graduateData);
-  // }
+    return await this.graduateRepository.createGrad(graduateData);
+  }
 
   async updateGrad(id, graduateData) {
     try {

@@ -10,6 +10,10 @@ const graduateSchema = new Schema(
       type: String,
       default: null,
     },
+    personalPhotoFileId: {
+      type: String,
+      default: null,
+    },
     mobile: {
       type: String,
       required: true,
