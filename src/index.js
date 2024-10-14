@@ -70,7 +70,7 @@ app.use(morgan("short"));
 mainRouter.use("/auth", authRoutes(authController));
 mainRouter.use("/tracks", trackRoutes(trackController));
 mainRouter.use(
-  "/registrationRequests",
+  "/registration-requests",
   registrationRequestRoutes(registrationRequestController)
 );
 mainRouter.use(
