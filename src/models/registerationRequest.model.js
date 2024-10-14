@@ -8,7 +8,11 @@ const registrationRequestSchema = new Schema(
     },
     personalPhoto: {
       type: String,
-      default: null
+      default: null,
+    },
+    personalPhotoFileId: {
+      type: String,
+      default: null,
     },
     mobile: {
       type: String,
