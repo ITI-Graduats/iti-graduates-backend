@@ -81,8 +81,12 @@ class RegistrationRequestController {
         requestBody.email
       );
 
-      if (existingGrad) throw new CustomError("Graduate already exists", 409);
-
+      if (existingGrad) {
+        throw new CustomError(
+          "You have Already Registered your data, call your ITI instructor for any required modifications",
+          409
+        );
+      }
       await this.graduateRepository.createGrad(requestBody);
     }
 
