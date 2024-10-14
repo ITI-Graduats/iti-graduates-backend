@@ -31,7 +31,7 @@ class AuthController {
     if (isMatched) {
       const accessToken = await this.generateAccessToken(admin);
       const refreshToken = await this.generateRefreshToken(
-        admin._id.toString()
+        admin._id.toString(),
       );
       return { accessToken, refreshToken, admin };
     } else {
@@ -51,7 +51,7 @@ class AuthController {
       throw new CustomError("Unauthorized, Refresh token is required", 401);
     const decodedToken = await jwtVerifyAsync(
       incomingRefreshToken,
-      process.env.REFRESH_TOKEN_SECRET
+      process.env.REFRESH_TOKEN_SECRET,
     );
 
     const admin = await this.adminRepository.getAdminById(decodedToken?._id);
@@ -72,7 +72,7 @@ class AuthController {
         ...(admin.role === "admin" && { branch: admin.branch }),
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "1d" },
     );
     return accessToken;
   }
@@ -83,7 +83,7 @@ class AuthController {
         _id: adminId,
       },
       process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "30d" }
+      { expiresIn: "30d" },
     );
     await this.adminRepository.updateAdmin(adminId, {
       refreshToken,

@@ -26,11 +26,11 @@ class graduateController {
   async updateGrad(id, graduateData) {
     const branches = await this.getCachedResource(
       "branches",
-      this.branchRepository.getAllBranches
+      this.branchRepository.getAllBranches,
     );
     const tracks = await this.getCachedResource(
       "tracks",
-      this.trackRepository.getAllTracks
+      this.trackRepository.getAllTracks,
     );
     try {
       await updateGraduateValidationSchema(branches, tracks).validate(
@@ -38,7 +38,7 @@ class graduateController {
         {
           abortEarly: false,
           stripUnknown: false,
-        }
+        },
       );
     } catch (err) {
       const errorMessages = err.errors;
@@ -65,14 +65,14 @@ class graduateController {
     if (await redisClient.exists(resourceName)) {
       const cachedResources = await redisClient.zRange(resourceName, 0, -1);
       return cachedResources.map(
-        (cachedResource) => JSON.parse(cachedResource).name
+        (cachedResource) => JSON.parse(cachedResource).name,
       );
     }
 
     const resources = await cacheResource(
       redisClient,
       resourceName,
-      resourceFetchFn
+      resourceFetchFn,
     );
     return resources.map((resource) => resource.name);
   }

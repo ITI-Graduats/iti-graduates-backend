@@ -8,13 +8,13 @@ const graduateValidationSchema = (branches, tracks) =>
       email: Yup.string()
         .matches(
           /^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$/,
-          "Please enter a valid email address."
+          "Please enter a valid email address.",
         )
         .required("Email is a required field."),
       mobile: Yup.string()
         .matches(
           /^(010|011|012|015)\d{8}$/,
-          "Please enter a valid Egyptian phone number (e.g., 01012345678)."
+          "Please enter a valid Egyptian phone number (e.g., 01012345678).",
         )
         .required("Mobile number is required."),
       cityOfBirth: Yup.string().required("City of birth is required."),
@@ -39,7 +39,7 @@ const graduateValidationSchema = (branches, tracks) =>
             "Professional Training Program - (9 Months)",
             "Intensive Code Camp - (4 Months)",
           ],
-          "Program must be either 'Professional Training Program - (9 Months)' or 'Intensive Code Camp - (4 Months)'."
+          "Program must be either 'Professional Training Program - (9 Months)' or 'Intensive Code Camp - (4 Months)'.",
         )
         .required("Program is required."),
       itiGraduationYear: Yup.number()
@@ -47,7 +47,7 @@ const graduateValidationSchema = (branches, tracks) =>
         .min(2000, "Graduation year must be after 2000.")
         .max(
           new Date().getFullYear(),
-          "Graduation year must be less than or equal to the current year."
+          "Graduation year must be less than or equal to the current year.",
         ),
       intake: Yup.string().required("Intake is required."),
       preferredTeachingBranches: Yup.array()
@@ -56,11 +56,11 @@ const graduateValidationSchema = (branches, tracks) =>
             is: () => branches.length,
             then: (schema) => schema.oneOf(branches),
             otherwise: (schema) => schema,
-          })
+          }),
         )
         .min(
           1,
-          "You must include at least one branch you're interested in teaching at."
+          "You must include at least one branch you're interested in teaching at.",
         )
         .test("uniqueness", "Duplicate branches are not allowed.", (value) => {
           if (!value || value.length === 0) return true;
@@ -72,12 +72,12 @@ const graduateValidationSchema = (branches, tracks) =>
       companyName: Yup.string().optional(),
       yearsOfExperience: Yup.number().optional(),
       hasFreelanceExperience: Yup.boolean().required(
-        "Please specify if you have worked as a freelancer before."
+        "Please specify if you have worked as a freelancer before.",
       ),
       interestedInTeaching: Yup.string()
         .oneOf(
           ["Business sessions", "Courses"],
-          "Please specify a valid teaching interest (either 'Business sessions' or 'Courses')."
+          "Please specify a valid teaching interest (either 'Business sessions' or 'Courses').",
         )
         .required("Teaching interest is required."),
     })
@@ -91,13 +91,13 @@ const updateGraduateValidationSchema = (branches, tracks) =>
       email: Yup.string()
         .matches(
           /^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$/,
-          "Enter a valid email"
+          "Enter a valid email",
         )
         .notRequired(),
       mobile: Yup.string()
         .matches(
           /^(010|011|012|015)\d{8}$/,
-          "Please enter a valid Egyptian phone number"
+          "Please enter a valid Egyptian phone number",
         )
         .notRequired(),
       cityOfBirth: Yup.string().notRequired(),
@@ -117,7 +117,7 @@ const updateGraduateValidationSchema = (branches, tracks) =>
             "Professional Training Program - (9 Months)",
             "Intensive Code Camp - (4 Months)",
           ],
-          "Program must be either Professional Training Program - (9 Months) or Intensive Code Camp - (4 Months)."
+          "Program must be either Professional Training Program - (9 Months) or Intensive Code Camp - (4 Months).",
         )
         .notRequired(),
       itiGraduationYear: Yup.number()
@@ -125,7 +125,7 @@ const updateGraduateValidationSchema = (branches, tracks) =>
         .min(2000, "Year must be after 2000")
         .max(
           new Date().getFullYear(),
-          "Year must be less than or equal to the current year"
+          "Year must be less than or equal to the current year",
         ),
       intake: Yup.string().notRequired(),
       preferredTeachingBranches: Yup.array()
@@ -134,11 +134,11 @@ const updateGraduateValidationSchema = (branches, tracks) =>
             is: () => branches.length,
             then: (schema) => schema.oneOf(branches),
             otherwise: (schema) => schema,
-          })
+          }),
         )
         .min(
           1,
-          "you have to include at least one branch you're interested to teach in!"
+          "you have to include at least one branch you're interested to teach in!",
         )
         .test(
           "uniqueness",
@@ -146,7 +146,7 @@ const updateGraduateValidationSchema = (branches, tracks) =>
           (value) => {
             if (!value || value.length === 0) return true;
             return new Set(value).size === value.length;
-          }
+          },
         )
         .notRequired(),
       preferredCoursesToTeach: Yup.string().notRequired(),
@@ -157,7 +157,7 @@ const updateGraduateValidationSchema = (branches, tracks) =>
       interestedInTeaching: Yup.string()
         .oneOf(
           ["Business sessions", "Courses"],
-          "Please specify a valid teaching interest"
+          "Please specify a valid teaching interest",
         )
         .notRequired(),
     })

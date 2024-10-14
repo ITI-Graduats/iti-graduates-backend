@@ -12,7 +12,7 @@ const upload = multer({
     } else {
       cb(
         new CustomError("Only .jpg, .jpeg, and .png formats are allowed", 415),
-        false
+        false,
       );
     }
   },

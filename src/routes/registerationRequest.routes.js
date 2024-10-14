@@ -5,7 +5,6 @@ const auth = require("../middlewares/auth");
 const checkRole = require("../middlewares/checkRole");
 
 const registrationRequestRouter = (registrationRequestController) => {
-  
   router.get("/all", auth, checkRole(["super admin"]), async (_, res) => {
     const requests = await registrationRequestController.getAllRequests();
     return res.status(200).send({
@@ -17,7 +16,7 @@ const registrationRequestRouter = (registrationRequestController) => {
   router.get("/", auth, checkRole(["admin"]), async (req, res) => {
     const { branch: branchId } = req.admin;
     const requests = await registrationRequestController.getRequestsByBranch(
-      branchId
+      branchId,
     );
     res.status(200).send({
       success: "All registration requests fetched successfully",
@@ -32,13 +31,13 @@ const registrationRequestRouter = (registrationRequestController) => {
       const personalPhoto = req.files;
       const requestData = { ...req.body, personalPhoto };
       const newRequest = await registrationRequestController.createRequest(
-        requestData
+        requestData,
       );
       res.status(201).send({
         success: "Registration request created successfully",
         newRequest,
       });
-    }
+    },
   );
 
   router.delete("/:id", auth, async (req, res) => {
@@ -46,7 +45,7 @@ const registrationRequestRouter = (registrationRequestController) => {
     const { action } = req.query;
     const request = await registrationRequestController.acceptOrRejectRequest(
       requestId,
-      action
+      action,
     );
     res.status(200).send({
       success: `Registration request ${action}ed`,

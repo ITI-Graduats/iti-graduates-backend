@@ -22,7 +22,7 @@ const uploadToImageKit = (file, fileName, folder) => {
         } else {
           resolve(response);
         }
-      }
+      },
     );
   });
 };
@@ -43,7 +43,7 @@ const updateImageInImageKit = async (
   oldFileId,
   newFile,
   newFileName,
-  folder
+  folder,
 ) => {
   await deleteFromImageKit(oldFileId);
   return await uploadToImageKit(newFile, newFileName, folder);
@@ -61,7 +61,7 @@ const handleIncommingImage = async (requestData) => {
   const imageKitResponse = await uploadToImageKit(
     personalPhotoFile,
     personalPhotoFile.originalname,
-    "personal_photos"
+    "personal_photos",
   );
   if (!imageKitResponse || !imageKitResponse.url) {
     throw new CustomError("Image upload failed", 500);

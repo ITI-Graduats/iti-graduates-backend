@@ -21,7 +21,7 @@ class TrackController {
     const tracks = await cacheResource(
       redisClient,
       "tracks",
-      await this.trackRepository.getAllTracks
+      await this.trackRepository.getAllTracks,
     );
     return tracks;
   }
@@ -38,7 +38,7 @@ class TrackController {
     }
 
     const existingTrack = await this.trackRepository.getTrackByName(
-      trackData.name
+      trackData.name,
     );
     if (existingTrack) throw new CustomError("Track already exists", 409);
 
@@ -48,7 +48,7 @@ class TrackController {
     await cacheResource(
       redisClient,
       "tracks",
-      await this.trackRepository.getAllTracks
+      await this.trackRepository.getAllTracks,
     );
 
     return addedTrack;
@@ -75,7 +75,7 @@ class TrackController {
     await cacheResource(
       redisClient,
       "tracks",
-      await this.trackRepository.getAllTracks
+      await this.trackRepository.getAllTracks,
     );
 
     return updatedTrack;
@@ -92,7 +92,7 @@ class TrackController {
     await cacheResource(
       redisClient,
       "tracks",
-      await this.trackRepository.getAllTracks
+      await this.trackRepository.getAllTracks,
     );
     return deletedTrack;
   }

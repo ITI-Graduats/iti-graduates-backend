@@ -44,13 +44,13 @@ const branchController = new BranchController(branchRepository);
 const graduateController = new GraduateController(
   graduateRepository,
   branchRepository,
-  trackRepository
+  trackRepository,
 );
 const registrationRequestController = new RegistrationRequestController(
   registrationRequestRepository,
   graduateRepository,
   branchRepository,
-  trackRepository
+  trackRepository,
 );
 
 const app = express();
@@ -61,7 +61,7 @@ app.use(
   cors({
     origin: "*",
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json());
@@ -73,13 +73,13 @@ mainRouter.use("/auth", authRoutes(authController));
 mainRouter.use("/tracks", trackRoutes(trackController));
 mainRouter.use(
   "/registration-requests",
-  registrationRequestRoutes(registrationRequestController)
+  registrationRequestRoutes(registrationRequestController),
 );
 mainRouter.use(
   "/admins",
   auth,
   checkRole(["super admin"]),
-  adminRoutes(adminController)
+  adminRoutes(adminController),
 );
 mainRouter.use("/branches", branchRoutes(branchController));
 mainRouter.use("/graduates", graduateRoutes(graduateController));

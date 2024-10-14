@@ -118,7 +118,7 @@ const graduateSchema = new Schema(
         delete ret.createdAt;
       },
     },
-  }
+  },
 );
 
 const Graduate = model("Graduate", graduateSchema);

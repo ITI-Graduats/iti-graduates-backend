@@ -118,12 +118,12 @@ const registrationRequestSchema = new Schema(
         delete ret.createdAt;
       },
     },
-  }
+  },
 );
 
 const RegistrationRequest = model(
   "RegistrationRequest",
-  registrationRequestSchema
+  registrationRequestSchema,
 );
 
 module.exports = RegistrationRequest;

@@ -12,7 +12,7 @@ class RegistrationRequestController {
     registrationRequestRepository,
     graduateRepository,
     branchRepository,
-    trackRepository
+    trackRepository,
   ) {
     this.registrationRequestRepository = registrationRequestRepository;
     this.graduateRepository = graduateRepository;
@@ -29,18 +29,18 @@ class RegistrationRequestController {
     if (!branch) throw new CustomError("No such branch exists!!", 404);
     const { name: branchName } = branch;
     return await this.registrationRequestRepository.getRequestsByBranch(
-      branchName
+      branchName,
     );
   }
 
   async createRequest(requestData) {
     const branches = await this.getCachedResource(
       "branches",
-      this.branchRepository.getAllBranches
+      this.branchRepository.getAllBranches,
     );
     const tracks = await this.getCachedResource(
       "tracks",
-      this.trackRepository.getAllTracks
+      this.trackRepository.getAllTracks,
     );
     try {
       await graduateValidationSchema(branches, tracks).validate(requestData, {
@@ -59,14 +59,14 @@ class RegistrationRequestController {
 
     const existingRequest =
       await this.registrationRequestRepository.getRequestByEmail(
-        requestData.email
+        requestData.email,
       );
     if (existingRequest) throw new CustomError("Request already exists", 409);
 
     await handleIncommingImage(requestData);
 
     const request = await this.registrationRequestRepository.createRequest(
-      requestData
+      requestData,
     );
     return request;
   }
@@ -79,7 +79,7 @@ class RegistrationRequestController {
       throw new CustomError("action has to be either accept or reject!!", 400);
 
     const request = await this.registrationRequestRepository.getRequestById(
-      requestId
+      requestId,
     );
     if (!request) throw new CustomError("No such request exists", 404);
 
@@ -87,13 +87,13 @@ class RegistrationRequestController {
 
     if (action === "accept") {
       const existingGrad = await this.graduateRepository.getGradByEmail(
-        requestBody.email
+        requestBody.email,
       );
 
       if (existingGrad) {
         throw new CustomError(
           "You have Already Registered your data, call your ITI instructor for any required modifications",
-          409
+          409,
         );
       }
       await this.graduateRepository.createGrad(requestBody);
@@ -106,14 +106,14 @@ class RegistrationRequestController {
     if (await redisClient.exists(resourceName)) {
       const cachedResources = await redisClient.zRange(resourceName, 0, -1);
       return cachedResources.map(
-        (cachedResource) => JSON.parse(cachedResource).name
+        (cachedResource) => JSON.parse(cachedResource).name,
       );
     }
 
     const resources = await cacheResource(
       redisClient,
       resourceName,
-      resourceFetchFn
+      resourceFetchFn,
     );
     return resources.map((resource) => resource.name);
   }

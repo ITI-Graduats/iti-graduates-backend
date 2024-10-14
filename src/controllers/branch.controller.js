@@ -23,7 +23,7 @@ class BranchController {
     const branches = await cacheResource(
       redisClient,
       "branches",
-      this.branchRepository.getAllBranches
+      this.branchRepository.getAllBranches,
     );
 
     return branches;
@@ -41,7 +41,7 @@ class BranchController {
     }
 
     const existingBranch = await this.branchRepository.getBranchByName(
-      branchData.name
+      branchData.name,
     );
     if (existingBranch) throw new CustomError("Branch already exists", 409);
 
@@ -51,7 +51,7 @@ class BranchController {
     await cacheResource(
       redisClient,
       "branches",
-      this.branchRepository.getAllBranches
+      this.branchRepository.getAllBranches,
     );
 
     return addedBranch;
@@ -74,14 +74,14 @@ class BranchController {
 
     const updatedBranch = await this.branchRepository.updateBranch(
       id,
-      branchData
+      branchData,
     );
     if (await redisClient.exists("branches")) await redisClient.del("branches");
 
     await cacheResource(
       redisClient,
       "branches",
-      this.branchRepository.getAllBranches
+      this.branchRepository.getAllBranches,
     );
 
     return updatedBranch;
@@ -98,7 +98,7 @@ class BranchController {
     await cacheResource(
       redisClient,
       "branches",
-      this.branchRepository.getAllBranches
+      this.branchRepository.getAllBranches,
     );
 
     return deletedBranch;
