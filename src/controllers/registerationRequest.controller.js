@@ -79,7 +79,7 @@ class RegistrationRequestController {
         409,
       );
 
-    // await handleIncommingImage(requestData);
+    await handleIncommingImage(requestData);
 
     const request = await this.registrationRequestRepository.createRequest(
       requestData,
