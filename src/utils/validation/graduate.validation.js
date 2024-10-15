@@ -21,10 +21,7 @@ const graduateValidationSchema = (branches, tracks) =>
       faculty: Yup.string().required("Faculty is required."),
       university: Yup.string().required("University is required."),
       linkedin: Yup.string().url("Please enter a valid URL.").optional(),
-      isEmployed: Yup.boolean().required("Employment status is required."),
-      freelancingIncome: Yup.number()
-        .min(0, "Income cannot be negative.")
-        .optional(),
+
       trackName: Yup.string()
         .when("$trackName", {
           is: () => tracks.length,
@@ -68,11 +65,60 @@ const graduateValidationSchema = (branches, tracks) =>
         })
         .required("Branches you can teach in are required."),
       preferredCoursesToTeach: Yup.string().optional(),
-      fullJobTitle: Yup.string().optional(),
-      companyName: Yup.string().optional(),
-      yearsOfExperience: Yup.number().optional(),
+      isEmployed: Yup.boolean().required("Employment status is required."),
+
+      fullJobTitle: Yup.string().test(
+        "is-employed",
+        "Job title is required if you are employed.",
+        function (value) {
+          const { isEmployed } = this.parent;
+          return isEmployed ? !!value : true;
+        }
+      ),
+
+      companyName: Yup.string().test(
+        "is-employed",
+        "Company name is required if you are employed.",
+        function (value) {
+          const { isEmployed } = this.parent;
+          return isEmployed ? !!value : true;
+        }
+      ),
+
+      yearsOfExperience: Yup.number().test(
+        "is-employed",
+        "Years of experience is required if you are employed.",
+        function (value) {
+          const { isEmployed } = this.parent;
+          if (isEmployed) {
+            if (value === undefined || value === null) {
+              return this.createError({
+                message: "Years of experience is required.",
+              });
+            }
+
+            return (
+              value > 0 ||
+              this.createError({
+                message: "Years of experience must be greater than 0.",
+              })
+            );
+          }
+          return true;
+        }
+      ),
+
       hasFreelanceExperience: Yup.boolean().required(
         "Please specify if you have worked as a freelancer before.",
+      ),
+
+      freelancingIncome: Yup.string().test(
+        "has-freelance",
+        "Freelance gain is required if you have freelance experience.",
+        function (value) {
+          const { hasFreelanceExperience } = this.parent;
+          return hasFreelanceExperience ? !!value : true;
+        }
       ),
       interestedInTeaching: Yup.string()
         .oneOf(
