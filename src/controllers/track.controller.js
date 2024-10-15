@@ -1,6 +1,7 @@
 const { isValidObjectId } = require("mongoose");
 const { redisClient } = require("../config/redis");
 const cacheResource = require("../utils/cacheResource");
+const isCacheStale = require("../utils/isCacheStale");
 const CustomError = require("../utils/CustomError");
 const {
   trackValidationSchema,
@@ -13,9 +14,11 @@ class TrackController {
   }
 
   async getAllTracks() {
-    if (await redisClient.exists("tracks")) {
-      const cachedTracks = await redisClient.zRange("tracks", 0, -1);
-      return cachedTracks.map((track) => JSON.parse(track));
+    if (redisClient.isReady && (await redisClient.exists("tracks"))) {
+      const cacheTracks = await redisClient.zRange("tracks", 0, -1);
+      const dbTracks = await this.trackRepository.getAllTracks();
+      if (!isCacheStale(cacheTracks, dbTracks))
+        return cacheTracks.map((track) => JSON.parse(track));
     }
 
     const tracks = await cacheResource(
@@ -43,13 +46,13 @@ class TrackController {
     if (existingTrack) throw new CustomError("Track already exists", 409);
 
     const addedTrack = await this.trackRepository.addTrack(trackData);
-    if (await redisClient.exists("tracks")) await redisClient.del("tracks");
 
-    await cacheResource(
-      redisClient,
-      "tracks",
-      await this.trackRepository.getAllTracks,
-    );
+    if (redisClient.isReady)
+      await cacheResource(
+        redisClient,
+        "tracks",
+        await this.trackRepository.getAllTracks,
+      );
 
     return addedTrack;
   }
@@ -70,13 +73,13 @@ class TrackController {
     if (!existingTrack) throw new CustomError("Track not found", 404);
 
     const updatedTrack = await this.trackRepository.updateTrack(id, trackData);
-    if (await redisClient.exists("tracks")) await redisClient.del("tracks");
 
-    await cacheResource(
-      redisClient,
-      "tracks",
-      await this.trackRepository.getAllTracks,
-    );
+    if (redisClient.isReady)
+      await cacheResource(
+        redisClient,
+        "tracks",
+        await this.trackRepository.getAllTracks,
+      );
 
     return updatedTrack;
   }
@@ -87,13 +90,12 @@ class TrackController {
     const deletedTrack = await this.trackRepository.deleteTrack(id);
     if (!deletedTrack) throw new CustomError("Track not found", 404);
 
-    if (await redisClient.exists("tracks")) await redisClient.del("tracks");
-
-    await cacheResource(
-      redisClient,
-      "tracks",
-      await this.trackRepository.getAllTracks,
-    );
+    if (redisClient.isReady)
+      await cacheResource(
+        redisClient,
+        "tracks",
+        await this.trackRepository.getAllTracks,
+      );
     return deletedTrack;
   }
 }

@@ -1,6 +1,7 @@
 const { isValidObjectId } = require("mongoose");
 const { redisClient } = require("../config/redis");
 const cacheResource = require("../utils/cacheResource");
+const isCacheStale = require("../utils/isCacheStale");
 const CustomError = require("../utils/CustomError");
 const {
   branchValidationSchema,
@@ -15,9 +16,11 @@ class BranchController {
   }
 
   async getAllBranches() {
-    if (await redisClient.exists("branches")) {
-      const cachedBranches = await redisClient.zRange("branches", 0, -1);
-      return cachedBranches.map((branch) => JSON.parse(branch));
+    if (redisClient.isReady && (await redisClient.exists("branches"))) {
+      const cacheBranches = await redisClient.zRange("branches", 0, -1);
+      const dbBranches = await this.branchRepository.getAllBranches();
+      if (!isCacheStale(cacheBranches, dbBranches))
+        return cacheBranches.map((branch) => JSON.parse(branch));
     }
 
     const branches = await cacheResource(
@@ -46,13 +49,13 @@ class BranchController {
     if (existingBranch) throw new CustomError("Branch already exists", 409);
 
     const addedBranch = await this.branchRepository.addBranch(branchData);
-    if (await redisClient.exists("branches")) await redisClient.del("branches");
 
-    await cacheResource(
-      redisClient,
-      "branches",
-      this.branchRepository.getAllBranches,
-    );
+    if (redisClient.isReady)
+      await cacheResource(
+        redisClient,
+        "branches",
+        this.branchRepository.getAllBranches,
+      );
 
     return addedBranch;
   }
@@ -76,13 +79,13 @@ class BranchController {
       id,
       branchData,
     );
-    if (await redisClient.exists("branches")) await redisClient.del("branches");
 
-    await cacheResource(
-      redisClient,
-      "branches",
-      this.branchRepository.getAllBranches,
-    );
+    if (redisClient.isReady)
+      await cacheResource(
+        redisClient,
+        "branches",
+        this.branchRepository.getAllBranches,
+      );
 
     return updatedBranch;
   }
@@ -93,13 +96,12 @@ class BranchController {
     const deletedBranch = await this.branchRepository.deleteBranch(id);
     if (!deletedBranch) throw new CustomError("Branch not found", 404);
 
-    if (await redisClient.exists("branches")) await redisClient.del("branches");
-
-    await cacheResource(
-      redisClient,
-      "branches",
-      this.branchRepository.getAllBranches,
-    );
+    if (redisClient.isReady)
+      await cacheResource(
+        redisClient,
+        "branches",
+        this.branchRepository.getAllBranches,
+      );
 
     return deletedBranch;
   }
