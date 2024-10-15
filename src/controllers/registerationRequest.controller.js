@@ -48,10 +48,22 @@ class RegistrationRequestController {
     if (!tracks || !tracks.length)
       throw new CustomError("No such track exists!!", 404);
 
+
+    const existingGrad = await this.graduateRepository.getGradByEmail(
+      requestData.email
+    );
+
+    if (existingGrad)
+      throw new CustomError(
+        "You have Already Registered your data, call your ITI instructor for any required modifications",
+        409
+      );
+
     const existingRequest =
       await this.registrationRequestRepository.getRequestByEmail(
         requestData.email
       );
+
     if (existingRequest)
       throw new CustomError(
         "You have Already Registered your data, call your ITI instructor for any required modifications",
@@ -85,12 +97,12 @@ class RegistrationRequestController {
         requestBody.email
       );
 
-      if (existingGrad) {
+      if (existingGrad)
         throw new CustomError(
           `${existingGrad.fullName} has already registered his data`,
           409
         );
-      }
+
       await this.graduateRepository.createGrad(requestBody);
     }
 
