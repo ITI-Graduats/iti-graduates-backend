@@ -110,7 +110,7 @@ class RegistrationRequestController {
         await this.registrationRequestRepository.deleteRequest(requestId);
         throw new CustomError(
           `${existingGrad.fullName} has already registered his data`,
-          409,
+          409
         );
       }
       await this.graduateRepository.createGrad(requestBody);
