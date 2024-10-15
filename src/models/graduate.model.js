@@ -52,8 +52,8 @@ const graduateSchema = new Schema(
       required: [true, "Eployment status is required"],
     },
     freelancingIncome: {
-      type: Number,
-      default: 0,
+      type: String,
+      
     },
     trackName: {
       type: String,
