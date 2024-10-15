@@ -52,7 +52,11 @@ class RegistrationRequestController {
       await this.registrationRequestRepository.getRequestByEmail(
         requestData.email
       );
-    if (existingRequest) throw new CustomError("Request already exists", 409);
+    if (existingRequest)
+      throw new CustomError(
+        "You have Already Registered your data, call your ITI instructor for any required modifications",
+        409
+      );
 
     await handleIncommingImage(requestData);
 
@@ -83,7 +87,7 @@ class RegistrationRequestController {
 
       if (existingGrad) {
         throw new CustomError(
-          "You have Already Registered your data, call your ITI instructor for any required modifications",
+          `${existingGrad.fullName} has already registered his data`,
           409
         );
       }
