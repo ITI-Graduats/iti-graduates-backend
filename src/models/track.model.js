@@ -24,7 +24,7 @@ const trackSchema = Schema(
         delete ret.createdAt;
       },
     },
-  }
+  },
 );
 
 const Track = model("Track", trackSchema);

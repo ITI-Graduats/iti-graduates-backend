@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const dbConfig = require("./config/db");
+const { connectToRedis } = require("./config/redis");
 const errorHandler = require("./middlewares/errorHandler");
 const requestLogger = require("./middlewares/requestLogger");
 const auth = require("./middlewares/auth");
@@ -43,12 +44,14 @@ const trackController = new TrackController(trackRepository);
 const branchController = new BranchController(branchRepository);
 const graduateController = new GraduateController(
   graduateRepository,
-  branchRepository
+  branchRepository,
+  trackRepository,
 );
 const registrationRequestController = new RegistrationRequestController(
   registrationRequestRepository,
   graduateRepository,
-  branchRepository
+  branchRepository,
+  trackRepository,
 );
 
 const app = express();
@@ -59,7 +62,7 @@ app.use(
   cors({
     origin: "*",
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json());
@@ -71,13 +74,13 @@ mainRouter.use("/auth", authRoutes(authController));
 mainRouter.use("/tracks", trackRoutes(trackController));
 mainRouter.use(
   "/registration-requests",
-  registrationRequestRoutes(registrationRequestController)
+  registrationRequestRoutes(registrationRequestController),
 );
 mainRouter.use(
   "/admins",
   auth,
   checkRole(["super admin"]),
-  adminRoutes(adminController)
+  adminRoutes(adminController),
 );
 mainRouter.use("/branches", branchRoutes(branchController));
 mainRouter.use("/graduates", graduateRoutes(graduateController));
@@ -88,10 +91,11 @@ app.use(errorHandler);
 
 dbConfig
   .connect()
-  .then(() => {
+  .then(async () => {
     app.listen(process.env.PORT, () => {
       console.log(`Server is listening on port ${process.env.PORT}`);
     });
+    await connectToRedis();
   })
   .catch((error) => {
     console.error(error);

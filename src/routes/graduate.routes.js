@@ -32,18 +32,10 @@ const graduateRouter = (graduateController) => {
   router.patch("/:id", auth, async (req, res) => {
     const graduate = await graduateController.updateGrad(
       req.params.id,
-      req.body
+      req.body,
     );
     res.status(200).send({
       success: "Graduate updated successfully",
-      graduate,
-    });
-  });
-
-  router.post("/", async (req, res) => {
-    const graduate = await graduateController.createGrad(req.body);
-    res.status(200).send({
-      success: "Graduate created successfully",
       graduate,
     });
   });

@@ -24,7 +24,7 @@ const branchSchema = Schema(
         delete ret.createdAt;
       },
     },
-  }
+  },
 );
 
 const Branch = model("Branch", branchSchema);
