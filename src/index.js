@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const dbConfig = require("./config/db");
+const { connectToRedis } = require("./config/redis");
 const errorHandler = require("./middlewares/errorHandler");
 const requestLogger = require("./middlewares/requestLogger");
 const auth = require("./middlewares/auth");
@@ -90,10 +91,11 @@ app.use(errorHandler);
 
 dbConfig
   .connect()
-  .then(() => {
+  .then(async () => {
     app.listen(process.env.PORT, () => {
       console.log(`Server is listening on port ${process.env.PORT}`);
     });
+    await connectToRedis();
   })
   .catch((error) => {
     console.error(error);

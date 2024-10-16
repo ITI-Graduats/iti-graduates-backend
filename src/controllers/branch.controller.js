@@ -1,7 +1,6 @@
 const { isValidObjectId } = require("mongoose");
 const { redisClient } = require("../config/redis");
 const cacheResource = require("../utils/cacheResource");
-const isCacheStale = require("../utils/isCacheStale");
 const CustomError = require("../utils/CustomError");
 const {
   branchValidationSchema,
@@ -9,27 +8,25 @@ const {
 } = require("../utils/validation/branch.validation");
 
 class BranchController {
-  branchRepository;
-
   constructor(branchRepository) {
     this.branchRepository = branchRepository;
   }
 
   async getAllBranches() {
-    if (redisClient.isReady && (await redisClient.exists("branches"))) {
-      const cacheBranches = await redisClient.zRange("branches", 0, -1);
-      const dbBranches = await this.branchRepository.getAllBranches();
-      if (!isCacheStale(cacheBranches, dbBranches))
+    if (redisClient.isReady) {
+      if (await redisClient.exists("branches")) {
+        const cacheBranches = await redisClient.zRange("branches", 0, -1);
         return cacheBranches.map((branch) => JSON.parse(branch));
+      }
+
+      const branches = await cacheResource(
+        redisClient,
+        "branches",
+        this.branchRepository.getAllBranches,
+      );
+      return branches;
     }
-
-    const branches = await cacheResource(
-      redisClient,
-      "branches",
-      this.branchRepository.getAllBranches,
-    );
-
-    return branches;
+    return await this.branchRepository.getAllBranches();
   }
 
   async addBranch(branchData) {

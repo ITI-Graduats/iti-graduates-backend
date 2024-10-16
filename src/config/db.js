@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const Admin = require("../models/admin.model");
-const { connectToRedis } = require("./redis");
 
 const connect = async () => {
   try {
@@ -9,8 +8,6 @@ const connect = async () => {
     } = await mongoose.connect(process.env.DB_URI);
 
     console.log(`Mongo Connected: ${host}`);
-
-    await connectToRedis();
 
     const existingSuperAdmin = await Admin.findOne({ role: "super admin" });
     if (!existingSuperAdmin) {

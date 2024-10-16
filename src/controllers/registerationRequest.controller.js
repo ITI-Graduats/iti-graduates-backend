@@ -1,7 +1,6 @@
 const { isValidObjectId } = require("mongoose");
 const { redisClient } = require("../config/redis");
 const cacheResource = require("../utils/cacheResource");
-const isCacheStale = require("../utils/isCacheStale");
 const CustomError = require("../utils/CustomError");
 const { handleIncommingImage } = require("../utils/imageKit.config");
 const {
@@ -110,7 +109,7 @@ class RegistrationRequestController {
         await this.registrationRequestRepository.deleteRequest(requestId);
         throw new CustomError(
           `${existingGrad.fullName} has already registered his data`,
-          409
+          409,
         );
       }
       await this.graduateRepository.createGrad(requestBody);
@@ -120,21 +119,23 @@ class RegistrationRequestController {
   }
 
   async getCachedResource(resourceName, resourceFetchFn) {
-    if (redisClient.isReady && (await redisClient.exists(resourceName))) {
-      const cacheResources = await redisClient.zRange(resourceName, 0, -1);
-      const dbResources = await resourceFetchFn();
-      if (!isCacheStale(cacheResources, dbResources))
+    if (redisClient.isReady) {
+      if (await redisClient.exists(resourceName)) {
+        const cacheResources = await redisClient.zRange(resourceName, 0, -1);
+
         return cacheResources.map(
           (cachedResource) => JSON.parse(cachedResource).name,
         );
-    }
+      }
 
-    const resources = await cacheResource(
-      redisClient,
-      resourceName,
-      resourceFetchFn,
-    );
-    return resources.map((resource) => resource.name);
+      const resources = await cacheResource(
+        redisClient,
+        resourceName,
+        resourceFetchFn,
+      );
+      return resources.map((resource) => resource.name);
+    }
+    return (await resourceFetchFn()).map((resource) => resource.name);
   }
 }
 

@@ -1,7 +1,6 @@
 const { isValidObjectId } = require("mongoose");
 const { redisClient } = require("../config/redis");
 const cacheResource = require("../utils/cacheResource");
-const isCacheStale = require("../utils/isCacheStale");
 const CustomError = require("../utils/CustomError");
 const {
   trackValidationSchema,
@@ -14,19 +13,20 @@ class TrackController {
   }
 
   async getAllTracks() {
-    if (redisClient.isReady && (await redisClient.exists("tracks"))) {
-      const cacheTracks = await redisClient.zRange("tracks", 0, -1);
-      const dbTracks = await this.trackRepository.getAllTracks();
-      if (!isCacheStale(cacheTracks, dbTracks))
+    if (redisClient.isReady) {
+      if (await redisClient.exists("tracks")) {
+        const cacheTracks = await redisClient.zRange("tracks", 0, -1);
         return cacheTracks.map((track) => JSON.parse(track));
-    }
+      }
 
-    const tracks = await cacheResource(
-      redisClient,
-      "tracks",
-      await this.trackRepository.getAllTracks,
-    );
-    return tracks;
+      const tracks = await cacheResource(
+        redisClient,
+        "tracks",
+        await this.trackRepository.getAllTracks,
+      );
+      return tracks;
+    }
+    return await this.trackRepository.getAllTracks();
   }
 
   async addTrack(trackData) {

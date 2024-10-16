@@ -1,6 +1,5 @@
 const { redisClient } = require("../config/redis");
 const cacheResource = require("../utils/cacheResource");
-const isCacheStale = require("../utils/isCacheStale");
 const CustomError = require("../utils/CustomError");
 const {
   updateGraduateValidationSchema,
@@ -63,21 +62,22 @@ class graduateController {
   }
 
   async getCachedResource(resourceName, resourceFetchFn) {
-    if (redisClient.isReady && (await redisClient.exists(resourceName))) {
-      const cacheResources = await redisClient.zRange(resourceName, 0, -1);
-      const dbResources = await resourceFetchFn();
-      if (!isCacheStale(cacheResources, dbResources))
+    if (redisClient.isReady) {
+      if (await redisClient.exists(resourceName)) {
+        const cacheResources = await redisClient.zRange(resourceName, 0, -1);
         return cacheResources.map(
           (cachedResource) => JSON.parse(cachedResource).name,
         );
-    }
+      }
 
-    const resources = await cacheResource(
-      redisClient,
-      resourceName,
-      resourceFetchFn,
-    );
-    return resources.map((resource) => resource.name);
+      const resources = await cacheResource(
+        redisClient,
+        resourceName,
+        resourceFetchFn,
+      );
+      return resources.map((resource) => resource.name);
+    }
+    return (await resourceFetchFn()).map((resource) => resource.name);
   }
 }
 
