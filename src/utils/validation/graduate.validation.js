@@ -46,7 +46,8 @@ const graduateValidationSchema = (branches, tracks) =>
           new Date().getFullYear(),
           "Graduation year must be less than or equal to the current year."
         ),
-      intake: Yup.string().required("Intake is required."),
+      intake: Yup.number().optional(),
+      round: Yup.string().optional(),
       preferredTeachingBranches: Yup.array()
         .of(
           Yup.string().when("$preferredTeachingBranches", {
@@ -64,7 +65,7 @@ const graduateValidationSchema = (branches, tracks) =>
           return new Set(value).size === value.length;
         })
         .required("Branches you can teach in are required."),
-      preferredCoursesToTeach: Yup.string().optional(),
+      preferredCoursesToTeach: Yup.array().optional(),
       isEmployed: Yup.boolean().required("Employment status is required."),
 
       fullJobTitle: Yup.string().test(
@@ -122,7 +123,7 @@ const graduateValidationSchema = (branches, tracks) =>
       ),
       interestedInTeaching: Yup.string()
         .oneOf(
-          ["Business sessions", "Courses"],
+          ["Business sessions", "Courses", "Both"],
           "Please specify a valid teaching interest (either 'Business sessions' or 'Courses')."
         )
         .required("Teaching interest is required."),
@@ -173,7 +174,8 @@ const updateGraduateValidationSchema = (branches, tracks) =>
           new Date().getFullYear(),
           "Year must be less than or equal to the current year"
         ),
-      intake: Yup.string().notRequired(),
+      intake: Yup.number().notRequired(),
+      round: Yup.string().notRequired(),
       preferredTeachingBranches: Yup.array()
         .of(
           Yup.string().when("$preferredTeachingBranches", {
@@ -195,14 +197,14 @@ const updateGraduateValidationSchema = (branches, tracks) =>
           }
         )
         .notRequired(),
-      preferredCoursesToTeach: Yup.string().notRequired(),
+      preferredCoursesToTeach: Yup.array().notRequired(),
       fullJobTitle: Yup.string().notRequired(),
       companyName: Yup.string().notRequired(),
       yearsOfExperience: Yup.number().optional(),
       hasFreelanceExperience: Yup.boolean().notRequired(),
       interestedInTeaching: Yup.string()
         .oneOf(
-          ["Business sessions", "Courses"],
+          ["Business sessions", "Courses", "Both"],
           "Please specify a valid teaching interest"
         )
         .notRequired(),
