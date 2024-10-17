@@ -77,6 +77,20 @@ class graduateController {
     if (!deletedGraduate) throw new CustomError("Graduate not found", 404);
     return deletedGraduate;
   }
+   async getDashboardData() {
+    const branches = await this.branchRepository.getAllBranches();
+    const graduateData = await Promise.all(
+      branches.map(async (branch) => {
+        const graduates = await this.graduateRepository.getGradsByBranch(branch.name);
+        return {
+          branch: branch.name,
+          graduates: graduates.length
+        };
+      })
+    );
+
+    return graduateData;
+  }
 
   //   async getBranches() {
   //     const branches = await this.branchRepository.getAllBranches();
