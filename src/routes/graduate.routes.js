@@ -4,13 +4,39 @@ const auth = require("../middlewares/auth");
 const checkRole = require("../middlewares/checkRole");
 
 const graduateRouter = (graduateController) => {
-  router.get("/all", auth, checkRole(["super admin"]), async (_, res) => {
-    const graduates = await graduateController.getAllGrads();
+  router.get("/all", auth, checkRole(["super admin"]), async (req, res) => {
+    const {
+      page = 1,
+      limit = 8,
+      fullName,
+      cityOfBirth,
+      branch,
+      itiGraduationYear,
+      preferredTeachingBranches,
+      interestedInTeaching,
+    } = req.query;
+
+    const result = await graduateController.getFilteredGrads(
+      page,
+      limit,
+      fullName,
+      cityOfBirth,
+      branch,
+      itiGraduationYear,
+      preferredTeachingBranches,
+      interestedInTeaching
+    );
     res.status(200).send({
       success: "All graduates fetched successfully",
-      graduates,
+      paginationMetaData: {
+        totalGraduatesCount: result.totalGraduatesCount,
+        currentPage: result.currentPage,
+        pagesCount: result.pagesCount,
+      },
+      graduates: result.graduates,
     });
   });
+
   router.get("/", auth, checkRole(["admin"]), async (req, res) => {
     const { branch: branchId } = req.admin;
     const graduates = await graduateController.getGradsByBranch(branchId);

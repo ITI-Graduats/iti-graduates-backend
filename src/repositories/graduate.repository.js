@@ -1,8 +1,13 @@
 const Graduate = require("../models/graduate.model");
 
 class GraduateRepository {
-  async getAllGrads() {
-    return await Graduate.find({});
+  async getFilteredGrads(limit, skip, query) {
+    console.log(query);
+    const totalGraduatesCount = await Graduate.countDocuments(query);
+    const graduates = await Graduate.find(query).skip(skip).limit(limit);
+    const currentPage = Math.floor(skip / limit) + 1;
+    const pagesCount = Math.ceil(totalGraduatesCount / limit);
+    return { graduates, totalGraduatesCount, currentPage, pagesCount };
   }
 
   async getGradById(id) {
