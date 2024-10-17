@@ -3,9 +3,9 @@ const {
   graduateValidationSchema,
   updateGraduateValidationSchema,
 } = require("../utils/validation/graduate.validation");
-
 const { branches } = require("../data/branches.json");
 const { tracks } = require("../data/tracks.json");
+const { escapeRegex } = require("../utils/helpers");
 
 class graduateController {
   constructor(graduateRepository, branchRepository) {
@@ -13,8 +13,34 @@ class graduateController {
     this.branchRepository = branchRepository;
   }
 
-  async getAllGrads() {
-    return await this.graduateRepository.getAllGrads();
+  async getFilteredGrads(
+    page,
+    limit,
+    fullName,
+    cityOfBirth,
+    branch,
+    itiGraduationYear,
+    preferredTeachingBranches,
+    interestedInTeaching
+  ) {
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const query = {};
+
+    if (fullName) {
+      query.fullName = { $regex: escapeRegex(fullName), $options: "i" };
+    }
+    if (cityOfBirth) query.cityOfBirth = cityOfBirth;
+    if (branch) query.branch = branch;
+    if (itiGraduationYear) query.itiGraduationYear = itiGraduationYear;
+    if (preferredTeachingBranches)
+      query.preferredTeachingBranches = { $in: preferredTeachingBranches };
+    if (interestedInTeaching) query.interestedInTeaching = interestedInTeaching;
+
+    return await this.graduateRepository.getFilteredGrads(
+      parseInt(limit),
+      skip,
+      query
+    );
   }
 
   async getGradsByBranch(branchId) {

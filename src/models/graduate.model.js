@@ -53,7 +53,6 @@ const graduateSchema = new Schema(
     },
     freelancingIncome: {
       type: String,
-      
     },
     trackName: {
       type: String,
@@ -83,7 +82,7 @@ const graduateSchema = new Schema(
     },
     preferredTeachingBranches: {
       type: [String],
-      requierd: true,
+      required: true,
     },
     preferredCoursesToTeach: {
       type: [String],
@@ -107,7 +106,7 @@ const graduateSchema = new Schema(
     },
     interestedInTeaching: {
       type: String,
-      enum: ["Business sessions", "Courses","Both"],
+      enum: ["Business sessions", "Courses", "Both"],
       required: true,
     },
   },
