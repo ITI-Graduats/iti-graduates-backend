@@ -80,7 +80,7 @@ const graduateSchema = new Schema(
     },
     preferredTeachingBranches: {
       type: [String],
-      requierd: true,
+      required: true,
     },
     preferredCoursesToTeach: {
       type: String,
