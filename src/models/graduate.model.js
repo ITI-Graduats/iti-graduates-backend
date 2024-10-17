@@ -75,16 +75,18 @@ const graduateSchema = new Schema(
       required: [true, "Graduation Year from ITI is required"],
     },
     intake: {
+      type: Number,
+    },
+    round: {
       type: String,
-      required: [true, "Intake is required"],
     },
     preferredTeachingBranches: {
       type: [String],
       required: true,
     },
     preferredCoursesToTeach: {
-      type: String,
-      default: null,
+      type: [String],
+      
     },
     fullJobTitle: {
       type: String,

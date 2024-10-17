@@ -77,16 +77,18 @@ const registrationRequestSchema = new Schema(
       required: [true, "Graduation Year from ITI is required"],
     },
     intake: {
+      type: Number,
+    },
+    round: {
       type: String,
-      required: [true, "Intake is required"],
     },
     preferredTeachingBranches: {
       type: [String],
       requierd: true,
     },
     preferredCoursesToTeach: {
-      type: String,
-      default: null,
+      type: [String],
+      
     },
     fullJobTitle: {
       type: String,
@@ -106,7 +108,7 @@ const registrationRequestSchema = new Schema(
     },
     interestedInTeaching: {
       type: String,
-      enum: ["Business sessions", "Courses"],
+      enum: ["Business sessions", "Courses","Both"],
       required: true,
     },
   },
