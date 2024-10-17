@@ -33,7 +33,6 @@ class graduateController {
         stripUnknown: false,
       });
     } catch (err) {
-      console.log(err);
       const errorMessages = err.errors;
       throw new CustomError(errorMessages.join(", ").replace(/"/g, ""), 422);
     }
@@ -77,18 +76,19 @@ class graduateController {
     if (!deletedGraduate) throw new CustomError("Graduate not found", 404);
     return deletedGraduate;
   }
-   async getDashboardData() {
+  async getDashboardData() {
     const branches = await this.branchRepository.getAllBranches();
     const graduateData = await Promise.all(
       branches.map(async (branch) => {
-        const graduates = await this.graduateRepository.getGradsByBranch(branch.name);
+        const graduates = await this.graduateRepository.getGradsByBranch(
+          branch.name
+        );
         return {
           branch: branch.name,
-          graduates: graduates.length
+          graduates: graduates.length,
         };
       })
     );
-
     return graduateData;
   }
 

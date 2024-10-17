@@ -20,14 +20,26 @@ const graduateRouter = (graduateController) => {
     });
   });
 
-  // router.get("/:id", auth, async (req, res) => {
-  //   const { id } = req.params;
-  //   const graduate = await graduateController.getGradById(id);
-  //   res.status(200).send({
-  //     success: "Graduate fetched successfully",
-  //     graduate,
-  //   });
-  // });
+  router.get("/dashboard-data", auth, async (req, res) => {
+    const { role, branch: branchId } = req.admin;
+    const dashboardData = await graduateController.getDashboardData(
+      role,
+      branchId
+    );
+    res.status(200).send({
+      success: "Dashboard data fetched successfully",
+      data: dashboardData,
+    });
+  });
+
+  router.get("/:id", auth, async (req, res) => {
+    const { id } = req.params;
+    const graduate = await graduateController.getGradById(id);
+    res.status(200).send({
+      success: "Graduate fetched successfully",
+      graduate,
+    });
+  });
 
   router.patch("/:id", auth, async (req, res) => {
     const graduate = await graduateController.updateGrad(
@@ -56,26 +68,7 @@ const graduateRouter = (graduateController) => {
     });
   });
 
-  router.get("/dashboard-data", auth, checkRole(["super admin", "admin"]), async (req, res) => {
-    try {
-      const { role, branch: branchId } = req.admin;
-      const dashboardData = await graduateController.getDashboardData(role, branchId);
-      res.status(200).send({
-        success: "Dashboard data fetched successfully",
-        data: dashboardData,
-      });
-    } catch (error) {
-      res.status(500).send({
-        error: "Failed to fetch dashboard data",
-        message: error.message,
-      });
-    }
-  });
-
-return router;
-
-
+  return router;
 };
-
 
 module.exports = graduateRouter;
