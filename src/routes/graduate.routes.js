@@ -38,11 +38,34 @@ const graduateRouter = (graduateController) => {
   });
 
   router.get("/", auth, checkRole(["admin"]), async (req, res) => {
-    const { branch: branchId } = req.admin;
-    const graduates = await graduateController.getGradsByBranch(branchId);
+    const { branch: adminBranch } = req.admin;
+    const {
+      page = 1,
+      limit = 8,
+      fullName,
+      cityOfBirth,
+      branch,
+      itiGraduationYear,
+      interestedInTeaching,
+    } = req.query;
+    const result = await graduateController.getFilteredGrads(
+      page,
+      limit,
+      fullName,
+      cityOfBirth,
+      branch,
+      itiGraduationYear,
+      adminBranch,
+      interestedInTeaching
+    );
     res.status(200).send({
       success: "All graduates fetched successfully",
-      graduates,
+      paginationMetaData: {
+        totalGraduatesCount: result.totalGraduatesCount,
+        currentPage: result.currentPage,
+        pagesCount: result.pagesCount,
+      },
+      graduates: result.graduates,
     });
   });
 

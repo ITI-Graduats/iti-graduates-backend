@@ -2,7 +2,6 @@ const Graduate = require("../models/graduate.model");
 
 class GraduateRepository {
   async getFilteredGrads(limit, skip, query) {
-    console.log(query);
     const totalGraduatesCount = await Graduate.countDocuments(query);
     const graduates = await Graduate.find(query).skip(skip).limit(limit);
     const currentPage = Math.floor(skip / limit) + 1;

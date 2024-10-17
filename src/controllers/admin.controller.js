@@ -1,111 +1,102 @@
 const { isValidObjectId } = require("mongoose");
 const CustomError = require("../utils/CustomError");
 const {
-    createAdminValidationSchema,
-    updateAdminValidationSchema,
+  createAdminValidationSchema,
+  updateAdminValidationSchema,
 } = require("../utils/validation/admin.validation");
 
 class AdminController {
-    constructor(adminRepository, branchRepository) {
-        this.adminRepository = adminRepository;
-        this.branchRepository = branchRepository;
-    }
-    async getAllAdmins() {
-        return await this.adminRepository.getAllAdmins();
-    }
+  constructor(adminRepository, branchRepository) {
+    this.adminRepository = adminRepository;
+    this.branchRepository = branchRepository;
+  }
+  async getAllAdmins() {
+    return await this.adminRepository.getAllAdmins();
+  }
 
-    async createAdmin(adminData) {
-        const { branches, branchNames } = await this.getBranches();
-        try {
-            await createAdminValidationSchema(branchNames).validate(adminData, {
-                abortEarly: false,
-                stripUnknown: false,
-            });
-        } catch (err) {
-            const errorMessages = err.errors;
-            throw new CustomError(
-                errorMessages.join(", ").replace(/"/g, ""),
-                422
-            );
-        }
-
-        const existingAdmin = await this.adminRepository.getAdminByEmail(
-            adminData.email
-        );
-        if (existingAdmin) throw new CustomError("Email already exists", 409);
-
-        const { branch: adminBranchName } = adminData;
-
-        const existingBranch = branches.find(
-            (branch) => branch.name === adminBranchName
-        );
-
-        if (!existingBranch)
-            throw new CustomError("No such branch exists!!", 404);
-
-        adminData["branch"] = existingBranch._id;
-
-        const admin = await this.adminRepository.createAdmin(adminData);
-        return admin;
+  async createAdmin(adminData) {
+    const { branches, branchNames } = await this.getBranches();
+    try {
+      await createAdminValidationSchema(branchNames).validate(adminData, {
+        abortEarly: false,
+        stripUnknown: false,
+      });
+    } catch (err) {
+      const errorMessages = err.errors;
+      throw new CustomError(errorMessages.join(", ").replace(/"/g, ""), 422);
     }
 
-    async updateAdmin(adminId, adminData) {
-        if (!isValidObjectId(adminId))
-            throw new CustomError("Invalid admin id!!", 400);
+    const existingAdmin = await this.adminRepository.getAdminByEmail(
+      adminData.email
+    );
+    if (existingAdmin) throw new CustomError("Email already exists", 409);
 
-        const { branches, branchNames } = await this.getBranches();
+    const { branch: adminBranchName } = adminData;
 
-        try {
-            await updateAdminValidationSchema(branchNames).validate(adminData, {
-                abortEarly: false,
-                stripUnknown: false,
-            });
-        } catch (err) {
-            const errorMessages = err.errors;
-            throw new CustomError(
-                errorMessages.join(", ").replace(/"/g, ""),
-                422
-            );
-        }
+    const existingBranch = branches.find(
+      (branch) => branch.name === adminBranchName
+    );
 
-        if ("branch" in adminData) {
-            const { branch: adminBranchName } = adminData;
+    if (!existingBranch) throw new CustomError("No such branch exists!!", 404);
 
-            const existingBranch = branches.find(
-                (branch) => branch.name === adminBranchName
-            );
+    const admin = await this.adminRepository.createAdmin(adminData);
+    return admin;
+  }
 
-            if (!existingBranch)
-                throw new CustomError("No such branch exists!!", 404);
+  async updateAdmin(adminId, adminData) {
+    if (!isValidObjectId(adminId))
+      throw new CustomError("Invalid admin id!!", 400);
 
-            adminData["branch"] = existingBranch._id;
-        }
+    const { branches, branchNames } = await this.getBranches();
 
-        const updatedAdmin = await this.adminRepository.updateAdmin(
-            adminId,
-            adminData
-        );
-        if (!updatedAdmin) throw new CustomError("No such admin exists!!", 404);
-
-        return updatedAdmin;
+    try {
+      await updateAdminValidationSchema(branchNames).validate(adminData, {
+        abortEarly: false,
+        stripUnknown: false,
+      });
+    } catch (err) {
+      const errorMessages = err.errors;
+      throw new CustomError(errorMessages.join(", ").replace(/"/g, ""), 422);
     }
 
-    async deleteAdmin(adminId) {
-        if (!isValidObjectId(adminId))
-            throw new CustomError("Invalid admin id!!", 400);
+    if ("branch" in adminData) {
+      const { branch: adminBranchName } = adminData;
 
-        const deletedAdmin = await this.adminRepository.deleteAdmin(adminId);
+      const existingBranch = branches.find(
+        (branch) => branch.name === adminBranchName
+      );
 
-        if (!deletedAdmin) throw new CustomError("No such admin exists!!", 404);
+      if (!existingBranch)
+        throw new CustomError("No such branch exists!!", 404);
 
-        return deletedAdmin;
+      adminData["branch"] = existingBranch._id;
     }
 
-    async getBranches() {
-        const branches = await this.branchRepository.getAllBranches();
-        const branchNames = branches?.map((branch) => branch.name);
-        return { branches, branchNames };
-    }
+    const updatedAdmin = await this.adminRepository.updateAdmin(
+      adminId,
+      adminData
+    );
+    if (!updatedAdmin) throw new CustomError("No such admin exists!!", 404);
+
+    return updatedAdmin;
+  }
+
+  async deleteAdmin(adminId) {
+    if (!isValidObjectId(adminId))
+      throw new CustomError("Invalid admin id!!", 400);
+
+    const deletedAdmin = await this.adminRepository.deleteAdmin(adminId);
+
+    if (!deletedAdmin) throw new CustomError("No such admin exists!!", 404);
+
+    return deletedAdmin;
+  }
+
+  async getBranches() {
+    const branches = await this.branchRepository.getAllBranches();
+    const branchNames = branches?.map((branch) => branch.name);
+    return { branches, branchNames };
+  }
 }
 
 module.exports = AdminController;
