@@ -20,6 +20,18 @@ const graduateRouter = (graduateController) => {
     });
   });
 
+  router.get("/dashboard-data", auth, async (req, res) => {
+    const { role, branch: branchId } = req.admin;
+    const dashboardData = await graduateController.getDashboardData(
+      role,
+      branchId
+    );
+    res.status(200).send({
+      success: "Dashboard data fetched successfully",
+      data: dashboardData,
+    });
+  });
+
   router.get("/:id", auth, async (req, res) => {
     const { id } = req.params;
     const graduate = await graduateController.getGradById(id);
