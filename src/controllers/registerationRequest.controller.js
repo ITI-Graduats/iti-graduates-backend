@@ -23,13 +23,11 @@ class RegistrationRequestController {
     return await this.registrationRequestRepository.getAllRequests();
   }
 
-  async getRequestsByBranch(branchId) {
-    const branch = await this.branchRepository.getBranchById(branchId);
-    if (!branch) throw new CustomError("No such branch exists!!", 404);
-    const { name: branchName } = branch;
-    return await this.registrationRequestRepository.getRequestsByBranch(
-      branchName
-    );
+  async getRequestsByBranch(branch) {
+    const existingBranch = await this.branchRepository.getBranchByName(branch);
+    if (!existingBranch) throw new CustomError("No such branch exists!!", 404);
+
+    return await this.registrationRequestRepository.getRequestsByBranch(branch);
   }
 
   async createRequest(requestData) {
@@ -47,7 +45,6 @@ class RegistrationRequestController {
       throw new CustomError("No such branch exists!!", 404);
     if (!tracks || !tracks.length)
       throw new CustomError("No such track exists!!", 404);
-
 
     const existingGrad = await this.graduateRepository.getGradByEmail(
       requestData.email
