@@ -5,7 +5,6 @@ const auth = require("../middlewares/auth");
 const checkRole = require("../middlewares/checkRole");
 
 const registrationRequestRouter = (registrationRequestController) => {
-  
   router.get("/all", auth, checkRole(["super admin"]), async (_, res) => {
     const requests = await registrationRequestController.getAllRequests();
     return res.status(200).send({
@@ -15,9 +14,9 @@ const registrationRequestRouter = (registrationRequestController) => {
   });
 
   router.get("/", auth, checkRole(["admin"]), async (req, res) => {
-    const { branch: branchId } = req.admin;
+    const { branch } = req.admin;
     const requests = await registrationRequestController.getRequestsByBranch(
-      branchId
+      branch
     );
     res.status(200).send({
       success: "All registration requests fetched successfully",
