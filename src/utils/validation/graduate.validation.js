@@ -65,7 +65,20 @@ const graduateValidationSchema = (branches, tracks) =>
           return new Set(value).size === value.length;
         })
         .required("Branches you can teach in are required."),
-      preferredCoursesToTeach: Yup.array().optional(),
+      preferredCoursesToTeach: Yup.array()
+        .transform((value, originalValue) => {
+          return typeof originalValue === "string" && originalValue === ""
+            ? []
+            : value;
+        })
+        .of(
+          Yup.string().matches(
+            /^[a-zA-Z0-9-_ ]*$/,
+            "Preferred courses can only include letters, numbers, underscores, dashes, and spaces."
+          )
+        )
+        .optional(),
+
       isEmployed: Yup.boolean().required("Employment status is required."),
 
       fullJobTitle: Yup.string().test(
@@ -91,6 +104,7 @@ const graduateValidationSchema = (branches, tracks) =>
         "Years of experience is required if you are employed.",
         function (value) {
           const { isEmployed } = this.parent;
+
           if (isEmployed) {
             if (value === undefined || value === null) {
               return this.createError({
@@ -98,13 +112,15 @@ const graduateValidationSchema = (branches, tracks) =>
               });
             }
 
-            return (
-              value > 0 ||
-              this.createError({
-                message: "Years of experience must be greater than 0.",
-              })
-            );
+            if (value < 0 || value > 50) {
+              return this.createError({
+                message: "Years of experience must be between 0 and 50.",
+              });
+            }
+
+            return true;
           }
+
           return true;
         }
       ),
