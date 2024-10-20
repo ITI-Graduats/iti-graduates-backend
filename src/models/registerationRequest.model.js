@@ -49,12 +49,10 @@ const registrationRequestSchema = new Schema(
     },
     isEmployed: {
       type: Boolean,
-      required: [true, "Eployment status is required"],
+      required: [true, "Employment status is required"],
     },
     freelancingIncome: {
       type: String,
-     
-      
     },
     trackName: {
       type: String,
@@ -84,11 +82,10 @@ const registrationRequestSchema = new Schema(
     },
     preferredTeachingBranches: {
       type: [String],
-      requierd: true,
+      required: true,
     },
     preferredCoursesToTeach: {
       type: [String],
-      
     },
     fullJobTitle: {
       type: String,
@@ -108,7 +105,7 @@ const registrationRequestSchema = new Schema(
     },
     interestedInTeaching: {
       type: String,
-      enum: ["Business sessions", "Courses","Both"],
+      enum: ["Business sessions", "Courses", "Both"],
       required: true,
     },
   },

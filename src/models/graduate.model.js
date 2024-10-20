@@ -49,7 +49,7 @@ const graduateSchema = new Schema(
     },
     isEmployed: {
       type: Boolean,
-      required: [true, "Eployment status is required"],
+      required: [true, "Employment status is required"],
     },
     freelancingIncome: {
       type: String,
@@ -86,7 +86,6 @@ const graduateSchema = new Schema(
     },
     preferredCoursesToTeach: {
       type: [String],
-      
     },
     fullJobTitle: {
       type: String,
@@ -114,6 +113,8 @@ const graduateSchema = new Schema(
     timestamps: true,
     toJSON: {
       transform(_, ret) {
+        delete ret._id;
+        delete ret.personalPhotoFileId;
         delete ret.__v;
         delete ret.updatedAt;
         delete ret.createdAt;
