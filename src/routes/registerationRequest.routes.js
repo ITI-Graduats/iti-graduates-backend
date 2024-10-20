@@ -3,6 +3,7 @@ const router = express.Router();
 const upload = require("../utils/multer.config");
 const auth = require("../middlewares/auth");
 const checkRole = require("../middlewares/checkRole");
+const imageUploadQueue = require("../utils/imageUploadQueue");
 
 const registrationRequestRouter = (registrationRequestController) => {
   router.get("/all", auth, checkRole(["super admin"]), async (_, res) => {
@@ -36,6 +37,10 @@ const registrationRequestRouter = (registrationRequestController) => {
       res.status(201).send({
         success: "Registration request created successfully",
         newRequest,
+      });
+      imageUploadQueue.add({
+        personalPhotoFile: personalPhoto.personalPhoto[0],
+        requestData: newRequest,
       });
     }
   );
