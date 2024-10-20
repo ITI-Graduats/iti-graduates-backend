@@ -113,6 +113,8 @@ const graduateSchema = new Schema(
     timestamps: true,
     toJSON: {
       transform(_, ret) {
+        delete ret._id;
+        delete ret.personalPhotoFileId;
         delete ret.__v;
         delete ret.updatedAt;
         delete ret.createdAt;
