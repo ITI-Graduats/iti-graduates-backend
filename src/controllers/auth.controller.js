@@ -39,24 +39,21 @@ class AuthController {
     }
   }
 
-  async logout(adminId) {
-    const admin = await this.adminRepository.updateAdmin(adminId, {
+  async logout(incomingRefreshToken) {
+    const admin = await this.decodeRefreshToken(incomingRefreshToken);
+    if (!admin) throw new CustomError("No such admin found", 400);
+
+    const { _id: adminId } = admin._doc;
+    const updatedAdmin = await this.adminRepository.updateAdmin(adminId, {
       refreshToken: null,
     });
-    return admin;
+    return updatedAdmin;
   }
 
   async refreshAccessToken(incomingRefreshToken) {
-    if (!incomingRefreshToken)
-      throw new CustomError("Unauthorized, Refresh token is required", 401);
-    const decodedToken = await jwtVerifyAsync(
-      incomingRefreshToken,
-      process.env.REFRESH_TOKEN_SECRET
-    );
+    const admin = await this.decodeRefreshToken(incomingRefreshToken);
+    if (!admin) throw new CustomError("No such admin found", 400);
 
-    const admin = await this.adminRepository.getAdminById(decodedToken?._id);
-    if (!admin || incomingRefreshToken !== admin.refreshToken)
-      throw new CustomError("Unauthorized, Invalid refresh token", 401);
     const accessToken = await this.generateAccessToken(admin);
     const refreshToken = await this.generateRefreshToken(admin._id);
     return { accessToken, refreshToken, admin };
@@ -72,7 +69,7 @@ class AuthController {
         ...(admin.role === "admin" && { branch: admin.branch }),
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "1h" }
     );
     return accessToken;
   }
@@ -89,6 +86,26 @@ class AuthController {
       refreshToken,
     });
     return refreshToken;
+  }
+
+  async decodeRefreshToken(incomingRefreshToken) {
+    if (!incomingRefreshToken)
+      throw new CustomError("Unauthorized, Refresh token is required", 401);
+   
+    let decodedToken;
+    try {
+      decodedToken = await jwtVerifyAsync(
+        incomingRefreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+      );
+    } catch (error) {
+      throw new CustomError("Unauthorized, Invalid refresh token", 401);
+    }
+
+    const admin = await this.adminRepository.getAdminById(decodedToken?._id);
+    if (!admin || incomingRefreshToken !== admin.refreshToken)
+      throw new CustomError("Unauthorized, Invalid refresh token", 401);
+    return admin;
   }
 }
 
