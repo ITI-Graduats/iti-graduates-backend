@@ -32,6 +32,8 @@ const errorHandler = (err, req, res, next) => {
 
   const statusCode = err.statusCode || 500;
   const message = err.message || "Internal Server Error";
+
+  if (message.search(/refresh/gi) >= 0) res.clearCookie("refreshToken");
   res.status(statusCode).send({ error: message });
   next();
 };
